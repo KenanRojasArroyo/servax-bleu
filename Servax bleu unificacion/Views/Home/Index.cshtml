@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "Inicio";
+}
+
+<div class="container py-4">
+    <!-- Encabezado de marca -->
+    <div class="text-center mb-4">
+        <i class="fa-solid fa-fish-fins fa-3x text-primary mb-2"></i>
+        <h1 class="fw-bold text-dark mb-1">Servax Bleu</h1>
+        <p class="text-muted lead fs-6">Sistema de Control de Operaciones y Engorda de Atún</p>
+    </div>
+
+    <!-- Grid de 4 Secciones (2x2) -->
+    <div class="row g-4">
+        <!-- 1. Arriba a la Izquierda: Calidad -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-clipboard-check fa-2x text-success me-3"></i>
+                        <h5 class="card-title mb-0 fw-bold text-dark">Calidad</h5>
+                    </div>
+                    <p class="card-text text-muted">Monitoreo de parámetros fisicoquímicos, frescura y estándares sanitarios.</p>
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Parámetros Óptimos</span>
+                        <small class="text-muted">Última revisión: Hoy</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Arriba a la Derecha: Operaciones -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-water fa-2x text-primary me-3"></i>
+                        <h5 class="card-title mb-0 fw-bold text-dark">Operaciones y Engorda</h5>
+                    </div>
+                    <p class="card-text text-muted">Control de jaulas marinas, biomasa estimativa y bitácora de siembra.</p>
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">12 Jaulas Activas</span>
+                        <small class="text-muted">Estado: Normal</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Abajo a la Izquierda: Alimentación e Inventarios -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-boxes-stacked fa-2x text-warning me-3"></i>
+                        <h5 class="card-title mb-0 fw-bold text-dark">Alimentación e Inventario</h5>
+                    </div>
+                    <p class="card-text text-muted">Registro de alimento suministrado, conversión alimenticia y stock restante.</p>
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Stock OK</span>
+                        <small class="text-muted">Autonomía: 15 días</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Abajo a la Derecha: Tarjeta de Resumen -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 bg-primary text-white">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-chart-pie fa-2x me-3"></i>
+                            <h5 class="card-title mb-0 fw-bold">Resumen Operativo</h5>
+                        </div>
+                        <p class="card-text opacity-75 small">Vista consolidada del estado general del sistema en tiempo real.</p>
+                    </div>
+                    <div class="row text-center g-2 mt-2">
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-2 rounded">
+                                <span class="d-block fs-4 fw-bold">98%</span>
+                                <small class="opacity-75">Eficiencia</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-2 rounded">
+                                <span class="d-block fs-4 fw-bold">100%</span>
+                                <small class="opacity-75">Conformidad</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

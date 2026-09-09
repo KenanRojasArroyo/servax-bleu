@@ -1,0 +1,1018 @@
+﻿@model System.Data.DataTable
+@{
+    ViewBag.Title = "Monitoreo de Calidad";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="row g-4">
+
+        <!-- COLUMNA IZQUIERDA: DASHBOARD Y DATOS -->
+        <div class="col-lg-8">
+
+            @if (TempData["Exito"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4">
+                    <i class="fa-solid fa-circle-check me-2"></i>@TempData["Exito"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Selector de Rango de Fechas -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body bg-light rounded-3 p-3">
+                    @using (Html.BeginForm("ObtenerCalidad", "Home", FormMethod.Get, new { @class = "row g-3 align-items-end" }))
+                    {
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-secondary mb-1">Fecha Inicio</label>
+                            <input type="date" name="fechaInicio" class="form-control" value="@ViewBag.FechaInicio" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-secondary mb-1">Fecha Fin</label>
+                            <input type="date" name="fechaFin" class="form-control" value="@ViewBag.FechaFin" />
+                        </div>
+                        <div class="col-md-4 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                                <i class="fa-solid fa-filter me-1"></i> Filtrar
+                            </button>
+                            <a href="@Url.Action("ObtenerCalidad", "Home")" class="btn btn-outline-secondary" title="Limpiar filtro">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Canvas de la Gráfica Interactiva -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-line text-info me-2"></i>Gráfica Comparativa de Parámetros</h5>
+                    <span class="badge bg-info text-dark" id="lblTotalRegistros">0 lecturas</span>
+                </div>
+                <div class="card-body">
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="graficaCalidad"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla con datos -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-table me-2"></i>Registros Guardados</h5>
+                    <button type="button" id="btnAbrirImportar" class="sv-upload-trigger">
+                        <i class="fa-solid fa-file-excel"></i> Importar Excel
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Temperatura (°C)</th>
+                                <th>Oxígeno (mg/L)</th>
+                                <th>Profundidad (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody">
+                            @if (Model != null && Model.Rows.Count > 0)
+                            {
+                                foreach (System.Data.DataRow row in Model.Rows)
+                                {
+                                    <tr>
+                                        <td>@row["id"]</td>
+                                        <td>@(row["Fecha"] != DBNull.Value ? Convert.ToDateTime(row["Fecha"]).ToString("dd/MM/yyyy") : "-")</td>
+                                        <td>@row["Temperatura"]</td>
+                                        <td>@row["Oxigeno"]</td>
+                                        <td>@row["Profundidad"]</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        No se encontraron registros para el rango seleccionado.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA: ASISTENTE DE DATOS (estilo Apple) -->
+        <div class="col-lg-4">
+            <div class="sv-panel sticky-top" style="top: 20px; z-index: 100;">
+
+                <!-- Encabezado minimal -->
+                <div class="sv-panel-header">
+                    <span class="sv-eyebrow">Asistente de datos</span>
+                    <h6 class="sv-title">Consulta natural</h6>
+                    <p class="sv-subtitle">Describe lo que buscas y el panel se actualiza al instante.</p>
+                </div>
+
+                <!-- Campo de consulta estilo Spotlight -->
+                <div class="sv-searchbar">
+                    <i class="fa-solid fa-sparkles sv-searchbar-icon"></i>
+                    <input type="text" id="copilotInput" class="sv-searchbar-input" placeholder="Ej. Muestra las lecturas de hoy" autocomplete="off" />
+                    <button type="button" id="btnEnviarCopilot" class="sv-searchbar-btn" aria-label="Enviar consulta" disabled>
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
+
+                <!-- Sugerencias rápidas -->
+                <div class="sv-chips" id="copilotChips">
+                    <button type="button" class="sv-chip" data-query="Muestra las lecturas de hoy">Lecturas de hoy</button>
+                    <button type="button" class="sv-chip" data-query="Temperaturas superiores a 21°C">Temp &gt; 21°C</button>
+                    <button type="button" class="sv-chip" data-query="Oxígeno menor a 5">Oxígeno &lt; 5</button>
+                </div>
+
+                <!-- Ficha de resultado -->
+                <div id="copilotResultado" class="sv-result-empty">
+                    <i class="fa-regular fa-comment-dots"></i>
+                    <p>Aún no has hecho ninguna consulta.</p>
+                </div>
+
+                <!-- Historial reciente -->
+                <div id="copilotHistorial" class="sv-history"></div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal de importación (estilo Google Drive) -->
+<div id="uploadModalOverlay" class="sv-modal-overlay" hidden>
+    <div class="sv-modal" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">
+        <div class="sv-modal-header">
+            <h5 id="uploadModalTitle" class="sv-modal-title">Importar lecturas desde Excel</h5>
+            <button type="button" id="btnCerrarImportar" class="sv-modal-close" aria-label="Cerrar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        @using (Html.BeginForm("CargarExcel", "Home", FormMethod.Post, new { enctype = "multipart/form-data", id = "uploadForm" }))
+        {
+            <div id="dropZone" class="sv-dropzone">
+                <div class="sv-dropzone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <p class="sv-dropzone-title">Arrastra tu archivo aquí</p>
+                <p class="sv-dropzone-subtitle">o haz clic para buscarlo en tu equipo &middot; .xlsx, .xls</p>
+                <input type="file" id="archivoExcel" name="archivoExcel" accept=".xlsx, .xls" class="d-none" />
+            </div>
+
+            <div id="fileInfo" class="sv-file-row d-none">
+                <div class="sv-file-info">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span id="fileName"></span>
+                </div>
+                <div class="sv-file-actions">
+                    <button type="button" id="btnQuitarArchivo" class="sv-btn-ghost">Quitar</button>
+                    <button type="submit" class="sv-btn-primary">Guardar en SQL</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    :root {
+        --sv-ink: #1D1D1F;
+        --sv-secondary: #6E6E73;
+        --sv-hairline: #E5E5EA;
+        --sv-surface: #FBFBFD;
+        --sv-accent: #0C8599;
+        --sv-accent-dark: #086D7D;
+        --sv-accent-tint: rgba(12, 133, 153, 0.08);
+        --sv-danger: #D64545;
+        --sv-danger-tint: rgba(214, 69, 69, 0.08);
+        --sv-success: #2FA84F;
+        /* Tipografía: familia única del sistema, la jerarquía la marcan peso y tamaño (como en el HIG de Apple) */
+        --sv-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+        /* Escala de espaciado (múltiplos de 4px) */
+        --sv-space-1: 4px;
+        --sv-space-2: 8px;
+        --sv-space-3: 12px;
+        --sv-space-4: 16px;
+        --sv-space-5: 24px;
+        --sv-space-6: 32px;
+        /* Escala de radios */
+        --sv-radius-sm: 12px;
+        --sv-radius-md: 18px;
+        --sv-radius-lg: 26px;
+        --sv-radius-pill: 999px;
+    }
+
+    .sv-panel {
+        background: #FFFFFF;
+        border-radius: var(--sv-radius-lg);
+        border: 1px solid var(--sv-hairline);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.06);
+        padding: var(--sv-space-5);
+        font-family: var(--sv-font);
+        color: var(--sv-ink);
+    }
+
+    .sv-panel-header {
+        margin-bottom: 16px;
+    }
+
+    .sv-eyebrow {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--sv-accent);
+    }
+
+    .sv-title {
+        margin: 4px 0 2px;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--sv-ink);
+    }
+
+    .sv-subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: var(--sv-secondary);
+        line-height: 1.4;
+    }
+
+    /* Barra de búsqueda tipo Spotlight */
+    .sv-searchbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--sv-surface);
+        border: 1px solid var(--sv-hairline);
+        border-radius: var(--sv-radius-pill);
+        padding: 6px 6px 6px 16px;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+        .sv-searchbar:focus-within {
+            border-color: var(--sv-accent);
+            box-shadow: 0 0 0 4px var(--sv-accent-tint);
+        }
+
+    .sv-searchbar-icon {
+        color: var(--sv-secondary);
+        font-size: 13px;
+    }
+
+    .sv-searchbar-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 14px;
+        color: var(--sv-ink);
+        padding: 8px 0;
+    }
+
+        .sv-searchbar-input::placeholder {
+            color: #A1A1A6;
+        }
+
+    .sv-searchbar-btn {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        border: none;
+        border-radius: 50%;
+        background: var(--sv-accent);
+        color: #fff;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+        .sv-searchbar-btn:hover:not(:disabled) {
+            background: var(--sv-accent-dark);
+        }
+
+        .sv-searchbar-btn:active:not(:disabled) {
+            transform: scale(0.92);
+        }
+
+        .sv-searchbar-btn:disabled {
+            background: #D2D2D7;
+            cursor: default;
+        }
+
+        .sv-searchbar-btn.sv-loading i {
+            animation: sv-spin 0.8s linear infinite;
+        }
+
+        .sv-searchbar-btn.sv-loading {
+            background: var(--sv-accent-dark);
+        }
+
+    @@keyframes sv-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Chips de sugerencias */
+    .sv-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 20px;
+    }
+
+    .sv-chip {
+        border: 1px solid var(--sv-hairline);
+        background: var(--sv-surface);
+        color: var(--sv-secondary);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px var(--sv-space-3);
+        border-radius: var(--sv-radius-pill);
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+        .sv-chip:hover {
+            background: var(--sv-accent-tint);
+            color: var(--sv-accent-dark);
+            border-color: var(--sv-accent);
+        }
+
+    /* Ficha de resultado */
+    .sv-result-empty {
+        text-align: center;
+        color: #A1A1A6;
+        padding: 28px 12px;
+        font-size: 13px;
+        border-top: 1px solid var(--sv-hairline);
+    }
+
+        .sv-result-empty i {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .sv-result-empty p {
+            margin: 0;
+        }
+
+    .sv-card {
+        border-top: 1px solid var(--sv-hairline);
+        padding-top: 16px;
+        animation: sv-fade-in 0.25s ease;
+    }
+
+    @@keyframes sv-fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .sv-card-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+        .sv-card-status.ok {
+            color: var(--sv-success);
+        }
+
+        .sv-card-status.err {
+            color: var(--sv-danger);
+        }
+
+    .sv-card-query {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--sv-ink);
+        line-height: 1.4;
+        margin-bottom: 14px;
+    }
+
+    .sv-card-stat {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 4px;
+    }
+
+        .sv-card-stat .num {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--sv-ink);
+        }
+
+        .sv-card-stat .label {
+            font-size: 13px;
+            color: var(--sv-secondary);
+        }
+
+    .sv-card-error {
+        font-size: 13px;
+        color: var(--sv-danger);
+        background: var(--sv-danger-tint);
+        border-radius: var(--sv-radius-sm);
+        padding: 10px 12px;
+    }
+
+    .sv-details {
+        margin-top: 12px;
+    }
+
+        .sv-details summary {
+            font-size: 12px;
+            color: var(--sv-secondary);
+            cursor: pointer;
+            list-style: none;
+        }
+
+            .sv-details summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .sv-details summary:before {
+                content: "Detalles técnicos ";
+            }
+
+        .sv-details[open] summary:before {
+            content: "Ocultar detalles ";
+        }
+
+        .sv-details pre {
+            margin-top: 8px;
+            background: var(--sv-surface);
+            border: 1px solid var(--sv-hairline);
+            border-radius: var(--sv-radius-sm);
+            padding: 10px 12px;
+            font-size: 11px;
+            color: var(--sv-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+    /* Historial */
+    .sv-history {
+        margin-top: 16px;
+    }
+
+        .sv-history:not(:empty) {
+            border-top: 1px solid var(--sv-hairline);
+            padding-top: 12px;
+        }
+
+    .sv-history-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 0;
+        font-size: 12.5px;
+    }
+
+        .sv-history-item + .sv-history-item {
+            border-top: 1px solid var(--sv-hairline);
+        }
+
+    .sv-history-query {
+        color: var(--sv-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sv-history-count {
+        flex-shrink: 0;
+        font-weight: 600;
+        color: var(--sv-ink);
+        background: var(--sv-surface);
+        border: 1px solid var(--sv-hairline);
+        border-radius: var(--sv-radius-pill);
+        padding: 2px 9px;
+        font-size: 11px;
+    }
+
+    /* Botón disparador del importador (vive sobre el header oscuro de la tabla) */
+    .sv-upload-trigger {
+        font-family: var(--sv-font);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sv-space-2);
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: var(--sv-radius-pill);
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+
+        .sv-upload-trigger:hover {
+            background: rgba(255, 255, 255, 0.24);
+        }
+
+        .sv-upload-trigger:active {
+            background: rgba(255, 255, 255, 0.32);
+        }
+
+    /* Modal de importación, estilo selector de archivos de Google Drive */
+    .sv-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        background: rgba(29, 29, 31, 0.44);
+        backdrop-filter: blur(6px) saturate(140%);
+        -webkit-backdrop-filter: blur(6px) saturate(140%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sv-space-5);
+        animation: sv-overlay-in 0.18s ease;
+    }
+
+        .sv-modal-overlay[hidden] {
+            display: none;
+        }
+
+    @@keyframes sv-overlay-in {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .sv-modal {
+        width: 100%;
+        max-width: 480px;
+        background: #FFFFFF;
+        border-radius: var(--sv-radius-lg);
+        box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+        padding: var(--sv-space-5);
+        font-family: var(--sv-font);
+        color: var(--sv-ink);
+        animation: sv-modal-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @@keyframes sv-modal-in {
+        from {
+            opacity: 0;
+            transform: scale(0.96) translateY(6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .sv-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--sv-space-4);
+    }
+
+    .sv-modal-title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    .sv-modal-close {
+        width: 28px;
+        height: 28px;
+        border: none;
+        border-radius: 50%;
+        background: var(--sv-surface);
+        color: var(--sv-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+        .sv-modal-close:hover {
+            background: var(--sv-hairline);
+            color: var(--sv-ink);
+        }
+
+    .sv-dropzone {
+        border: 1.5px dashed var(--sv-hairline);
+        border-radius: var(--sv-radius-md);
+        background: var(--sv-surface);
+        padding: var(--sv-space-6) var(--sv-space-4);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+        .sv-dropzone.sv-dragover {
+            border-color: var(--sv-accent);
+            background: var(--sv-accent-tint);
+        }
+
+    .sv-dropzone-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto var(--sv-space-3);
+        border-radius: 50%;
+        background: var(--sv-accent-tint);
+        color: var(--sv-accent);
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sv-dropzone-title {
+        margin: 0 0 2px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--sv-ink);
+    }
+
+    .sv-dropzone-subtitle {
+        margin: 0;
+        font-size: 12.5px;
+        color: var(--sv-secondary);
+    }
+
+    .sv-file-row {
+        margin-top: var(--sv-space-4);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sv-space-3);
+        background: var(--sv-surface);
+        border: 1px solid var(--sv-hairline);
+        border-radius: var(--sv-radius-md);
+        padding: var(--sv-space-3) var(--sv-space-4);
+    }
+
+    .sv-file-info {
+        display: flex;
+        align-items: center;
+        gap: var(--sv-space-2);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--sv-ink);
+        overflow: hidden;
+    }
+
+        .sv-file-info i {
+            color: var(--sv-success);
+        }
+
+        .sv-file-info span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+    .sv-file-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--sv-space-2);
+        flex-shrink: 0;
+    }
+
+    .sv-btn-ghost, .sv-btn-primary {
+        font-family: var(--sv-font);
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: var(--sv-radius-pill);
+        padding: 7px 14px;
+        cursor: pointer;
+        border: none;
+        transition: background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .sv-btn-ghost {
+        background: transparent;
+        color: var(--sv-secondary);
+    }
+
+        .sv-btn-ghost:hover {
+            color: var(--sv-ink);
+        }
+
+    .sv-btn-primary {
+        background: var(--sv-accent);
+        color: #fff;
+    }
+
+        .sv-btn-primary:hover {
+            background: var(--sv-accent-dark);
+        }
+</style>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let miGrafica = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // 1. Extraer datos iniciales del modelo C#
+        const labels = [];
+        const tempValues = [];
+        const oxiValues = [];
+        const profValues = [];
+
+        @if (Model != null && Model.Rows.Count > 0)
+        {
+            foreach (System.Data.DataRow row in Model.Rows)
+            {
+                var fStr = row["Fecha"] != DBNull.Value ? Convert.ToDateTime(row["Fecha"]).ToString("dd/MM/yyyy") : "";
+                <text>
+                    labels.push("@fStr");
+                    tempValues.push(@(row["Temperatura"] != DBNull.Value ? row["Temperatura"].ToString().Replace(',', '.') : "0"));
+                    oxiValues.push(@(row["Oxigeno"] != DBNull.Value ? row["Oxigeno"].ToString().Replace(',', '.') : "0"));
+                    profValues.push(@(row["Profundidad"] != DBNull.Value ? row["Profundidad"].ToString().Replace(',', '.') : "0"));
+                </text>
+            }
+        }
+
+        renderizarGrafica(labels, tempValues, oxiValues, profValues);
+
+        // 2. Eventos del Asistente de datos
+        const copilotInput = document.getElementById('copilotInput');
+        const btnEnviarCopilot = document.getElementById('btnEnviarCopilot');
+
+        copilotInput.addEventListener('input', function () {
+            btnEnviarCopilot.disabled = copilotInput.value.trim().length === 0;
+        });
+
+        btnEnviarCopilot.addEventListener('click', enviarPreguntaCopilot);
+        copilotInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !btnEnviarCopilot.disabled) enviarPreguntaCopilot();
+        });
+
+        document.getElementById('copilotChips').addEventListener('click', function (e) {
+            const chip = e.target.closest('.sv-chip');
+            if (!chip) return;
+            copilotInput.value = chip.dataset.query;
+            btnEnviarCopilot.disabled = false;
+            enviarPreguntaCopilot();
+        });
+
+        // 3. Modal de importación (estilo Google Drive) + Drag & Drop
+        const overlay = document.getElementById("uploadModalOverlay");
+        const btnAbrirImportar = document.getElementById("btnAbrirImportar");
+        const btnCerrarImportar = document.getElementById("btnCerrarImportar");
+        const btnQuitarArchivo = document.getElementById("btnQuitarArchivo");
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("archivoExcel");
+        const fileInfo = document.getElementById("fileInfo");
+        const fileName = document.getElementById("fileName");
+
+        function abrirModalImportar() {
+            overlay.hidden = false;
+            document.body.style.overflow = "hidden";
+        }
+
+        function cerrarModalImportar() {
+            overlay.hidden = true;
+            document.body.style.overflow = "";
+        }
+
+        function mostrarArchivoSeleccionado(archivo) {
+            fileName.textContent = archivo.name;
+            fileInfo.classList.remove("d-none");
+            dropZone.classList.add("d-none");
+        }
+
+        function limpiarArchivoSeleccionado() {
+            fileInput.value = "";
+            fileInfo.classList.add("d-none");
+            dropZone.classList.remove("d-none");
+        }
+
+        btnAbrirImportar.addEventListener("click", abrirModalImportar);
+        btnCerrarImportar.addEventListener("click", cerrarModalImportar);
+        btnQuitarArchivo.addEventListener("click", limpiarArchivoSeleccionado);
+
+        // Cerrar al hacer clic fuera de la tarjeta o con Escape
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) cerrarModalImportar();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !overlay.hidden) cerrarModalImportar();
+        });
+
+        dropZone.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files.length > 0) mostrarArchivoSeleccionado(fileInput.files[0]);
+        });
+
+        ["dragenter", "dragover"].forEach(evt =>
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.add("sv-dragover");
+            })
+        );
+        ["dragleave", "drop"].forEach(evt =>
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove("sv-dragover");
+            })
+        );
+        dropZone.addEventListener("drop", (e) => {
+            const archivos = e.dataTransfer.files;
+            if (archivos.length > 0) {
+                fileInput.files = archivos;
+                mostrarArchivoSeleccionado(archivos[0]);
+            }
+        });
+    });
+
+    function renderizarGrafica(labels, temp, oxi, prof) {
+        const ctx = document.getElementById('graficaCalidad').getContext('2d');
+
+        if (miGrafica) {
+            miGrafica.destroy();
+        }
+
+        miGrafica = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Temperatura (°C)', data: temp, borderColor: '#dc3545', backgroundColor: 'rgba(220, 53, 69, 0.1)', borderWidth: 2, tension: 0.3, fill: true },
+                    { label: 'Oxígeno (mg/L)', data: oxi, borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', borderWidth: 2, tension: 0.3, fill: true },
+                    { label: 'Profundidad (m)', data: prof, borderColor: '#ffc107', backgroundColor: 'rgba(255, 193, 7, 0.1)', borderWidth: 2, tension: 0.3, fill: true }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        document.getElementById('lblTotalRegistros').textContent = labels.length + " lecturas";
+    }
+
+    let historialConsultas = [];
+
+    function enviarPreguntaCopilot() {
+        const input = document.getElementById('copilotInput');
+        const btn = document.getElementById('btnEnviarCopilot');
+        const mensaje = input.value.trim();
+        if (!mensaje) return;
+
+        input.value = "";
+        btn.disabled = true;
+        btn.classList.add('sv-loading');
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch"></i>';
+
+        // Llamada AJAX al método ConsultarAsistente en HomeController
+        fetch('@Url.Action("ConsultarAsistente", "Home")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'mensaje=' + encodeURIComponent(mensaje)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarFichaResultado(mensaje, true, data.datos ? data.datos.length : 0, data.respuesta);
+                actualizarInterfazCompleta(data.datos);
+            } else {
+                mostrarFichaResultado(mensaje, false, 0, data.respuesta);
+            }
+        })
+        .catch(error => {
+            mostrarFichaResultado(mensaje, false, 0, "Error al comunicarse con el servidor: " + error);
+        })
+        .finally(() => {
+            btn.classList.remove('sv-loading');
+            btn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+        });
+    }
+
+    function mostrarFichaResultado(consulta, exito, totalRegistros, detalleTecnico) {
+        const contenedor = document.getElementById('copilotResultado');
+
+        // Extraer el SQL entre backticks si viene incluido, sin mostrarlo como mensaje de chat
+        let sql = null;
+        const match = detalleTecnico && detalleTecnico.match(/`([^`]+)`/);
+        if (match) sql = match[1];
+
+        if (exito) {
+            contenedor.innerHTML = `
+                <div class="sv-card">
+                    <div class="sv-card-status ok"><i class="fa-solid fa-circle-check"></i> Consulta procesada</div>
+                    <div class="sv-card-query">"${escaparHtml(consulta)}"</div>
+                    <div class="sv-card-stat">
+                        <span class="num">${totalRegistros}</span>
+                        <span class="label">${totalRegistros === 1 ? 'lectura encontrada' : 'lecturas encontradas'}</span>
+                    </div>
+                    ${sql ? `<details class="sv-details"><summary></summary><pre>${escaparHtml(sql)}</pre></details>` : ''}
+                </div>
+            `;
+        } else {
+            contenedor.innerHTML = `
+                <div class="sv-card">
+                    <div class="sv-card-status err"><i class="fa-solid fa-circle-exclamation"></i> No se pudo procesar</div>
+                    <div class="sv-card-query">"${escaparHtml(consulta)}"</div>
+                    <div class="sv-card-error">${escaparHtml(detalleTecnico || 'Ocurrió un error inesperado.')}</div>
+                </div>
+            `;
+        }
+
+        agregarAlHistorial(consulta, exito, totalRegistros);
+    }
+
+    function agregarAlHistorial(consulta, exito, totalRegistros) {
+        historialConsultas.unshift({ consulta, exito, totalRegistros });
+        historialConsultas = historialConsultas.slice(0, 4);
+
+        const historial = document.getElementById('copilotHistorial');
+        historial.innerHTML = historialConsultas.map(item => `
+            <div class="sv-history-item">
+                <span class="sv-history-query">${escaparHtml(item.consulta)}</span>
+                <span class="sv-history-count">${item.exito ? item.totalRegistros : '—'}</span>
+            </div>
+        `).join('');
+    }
+
+    function escaparHtml(texto) {
+        const div = document.createElement('div');
+        div.textContent = texto ?? '';
+        return div.innerHTML;
+    }
+
+    function actualizarInterfazCompleta(datos) {
+        const labels = [];
+        const temp = [];
+        const oxi = [];
+        const prof = [];
+        const tbody = document.getElementById('tablaBody');
+        tbody.innerHTML = "";
+
+        if (!datos || datos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No se encontraron registros para esta consulta.</td></tr>';
+            renderizarGrafica([], [], [], []);
+            return;
+        }
+
+        datos.forEach(item => {
+            labels.push(item.Fecha);
+            temp.push(item.Temperatura);
+            oxi.push(item.Oxigeno);
+            prof.push(item.Profundidad);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.Fecha}</td>
+                <td>${item.Temperatura}</td>
+                <td>${item.Oxigeno}</td>
+                <td>${item.Profundidad}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Re-renderizar gráfica dinámicamente con los datos de Gemini
+        renderizarGrafica(labels, temp, oxi, prof);
+    }
+</script>

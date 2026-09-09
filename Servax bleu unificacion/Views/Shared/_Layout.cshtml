@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Servax Bleu</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Menú de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <!-- Logo / Nombre del Proyecto -->
+            <a class="navbar-brand fw-bold text-info" href="@Url.Action("Index", "Home")">
+                <i class="fa-solid fa-fish me-2"></i>SERVAX BLEU
+            </a>
+
+            <!-- Botón desplegable para móviles -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menú simplificado -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("ObtenerCalidad", "Home")">
+                            <i class="fa-solid fa-chart-line me-1"></i> Obtener Calidad
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Botón de Modo Oscuro/Claro -->
+                <button class="btn btn-outline-light border-0 btn-sm rounded-circle px-2" id="btnThemeToggle" type="button" title="Cambiar Tema">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal cargado dinámicamente -->
+    <main class="container my-4 flex-grow-1">
+        @RenderBody()
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="text-center py-3 text-muted border-top">
+        <small>&copy; @DateTime.Now.Year - Servax Bleu | Control de Operaciones & Engorda de Atún</small>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script de Alternancia Modo Oscuro/Claro -->
+    <script>
+        const themeToggleBtn = document.getElementById('btnThemeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlElement = document.documentElement;
+
+        // Cargar preferencia guardada o usar el tema claro por defecto
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-bs-theme', savedTheme);
+        actualizarIcono(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            actualizarIcono(newTheme);
+        });
+
+        function actualizarIcono(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+    </script>
+</body>
+</html>
