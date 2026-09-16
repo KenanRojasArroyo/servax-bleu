@@ -231,10 +231,18 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Conexion.cs" />
+    <Compile Include="Controllers\CorralController.cs" />
+    <Compile Include="Controllers\EspecieController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MuestreoAgua.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Corral.cs" />
+    <Compile Include="Models\DashboardIndexViewModel.cs" />
+    <Compile Include="Models\Especie.cs" />
+    <Compile Include="Models\InventarioPez.cs" />
+    <Compile Include="Models\MuestreoAgua.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicios\ServicioNotificaciones.cs" />
     <Compile Include="Servicios\TextToSqlService.cs" />
@@ -256,6 +264,9 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\calidad.css" />
+    <Content Include="Content\glassmorphism.css" />
+    <Content Include="Content\index.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -265,7 +276,9 @@
     <Content Include="Scripts\bootstrap.esm.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Docs\ERD_ServaxBleu.md" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
+    <Content Include="Scripts\dashboard-charts.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
@@ -276,6 +289,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\requisitos-engine.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -290,11 +304,21 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Home\ObtenerCalidad.cshtml" />
+    <Content Include="Views\Home\Monitoreo.cshtml" />
+    <Content Include="Web.config.example" />
+    <Content Include="Views\Corral\Create.cshtml" />
+    <Content Include="Views\Corral\Delete.cshtml" />
+    <Content Include="Views\Corral\Details.cshtml" />
+    <Content Include="Views\Corral\Edit.cshtml" />
+    <Content Include="Views\Corral\Index.cshtml" />
+    <Content Include="Views\Especie\Create.cshtml" />
+    <Content Include="Views\Especie\Delete.cshtml" />
+    <Content Include="Views\Especie\Details.cshtml" />
+    <Content Include="Views\Especie\Edit.cshtml" />
+    <Content Include="Views\Especie\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

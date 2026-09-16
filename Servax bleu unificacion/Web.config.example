@@ -12,7 +12,7 @@
 		<add key="SmtpPort" value="587" />
 		<add key="SmtpUser" value="TU_CORREO@gmail.com" />
 		<add key="SmtpPass" value="TU_APP_PASSWORD_DE_GMAIL" />
-		<add key="EmailAlertaDestino" value="TU_CORREO@gmail.com" />
+		<add key="EmailAlertaDestino" value="kenan.rojas.a@gmail.com" />
 		<add key="OllamaUrl" value="http://localhost:11434/api/generate" />
 		<add key="OllamaModel" value="qwen2.5-coder:7b" />
 		<add key="webpages:Version" value="3.0.0.0" />

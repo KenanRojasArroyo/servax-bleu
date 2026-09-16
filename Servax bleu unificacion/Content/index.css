@@ -1,0 +1,163 @@
+/* Animación de entrada general */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.5s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+    opacity: 0;
+}
+
+/* Encabezado */
+.header-icon {
+    width: 42px;
+    height: 42px;
+    background: #f1f5f9;
+    color: #0f172a;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+/* Tarjetas */
+.module-card {
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efectos Hover en Tarjeta Activa */
+.active-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.active-card:hover .icon-box {
+    transform: scale(1.1) rotate(3deg);
+}
+
+/* Módulos Deshabilitados */
+.disabled-card {
+    background: #fafafa;
+    opacity: 0.85;
+}
+
+/* Contenedores de Icono */
+.icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+/* Indicador Pulsante de Estado Activo */
+.status-badge {
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.5);
+    animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(25, 135, 84, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+}
+
+/* Animación de la flecha del botón */
+.btn-animated {
+    border-radius: 10px;
+    padding: 10px 16px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.icon-arrow {
+    transition: transform 0.25s ease;
+}
+
+.btn-animated:hover .icon-arrow {
+    transform: translateX(5px);
+}
+
+/* Dashboard Tema Oscuro */
+.dashboard-dark {
+    background-color: #0b0f19;
+    color: #e2e8f0;
+    min-height: 100vh;
+    border-radius: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.kpi-card, .chart-card {
+    background: #151c2c;
+    border: 1px solid #232d42;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.kpi-title, .chart-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #8a99ad;
+    text-transform: uppercase;
+}
+
+.kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.kpi-unit {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 400;
+}
+
+.kpi-sparkline {
+    height: 40px;
+    margin-top: 10px;
+}
+
+.chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+}

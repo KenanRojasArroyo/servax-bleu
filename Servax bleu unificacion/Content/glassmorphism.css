@@ -1,0 +1,186 @@
+﻿/* ============================================================
+   Glassmorphism — Servax Bleu
+   Capa de estilos que convierte el sistema de tarjetas, panel,
+   navbar y modal existentes en superficies de "vidrio esmerilado"
+   (fondo translúcido + blur + borde de luz + sombra suave).
+
+   Se carga al final de <head> para tener prioridad de cascada
+   sobre Bootstrap, Site.css, el <style> del navbar y calidad.css,
+   sin necesidad de !important en la mayoría de los casos.
+   ============================================================ */
+
+:root {
+    --glass-blur: 18px;
+    --glass-saturate: 180%;
+    --glass-border-light: rgba(255, 255, 255, 0.45);
+    --glass-border-dark: rgba(255, 255, 255, 0.12);
+    --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.14);
+}
+
+/* ---------- Fondo general: degradado + manchas de color ---------- */
+html, body {
+    height: 100%;
+}
+
+body {
+    background-color: #dbeafe;
+    background-image: radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.38), transparent 42%), radial-gradient(circle at 88% 12%, rgba(6, 182, 212, 0.32), transparent 45%), radial-gradient(circle at 25% 92%, rgba(2, 132, 199, 0.28), transparent 48%), radial-gradient(circle at 92% 85%, rgba(14, 116, 144, 0.25), transparent 45%), linear-gradient(160deg, #eef6fb 0%, #dfeef7 45%, #cfe6f0 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: #0b1420;
+    background-image: radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.22), transparent 42%), radial-gradient(circle at 88% 12%, rgba(6, 182, 212, 0.18), transparent 45%), radial-gradient(circle at 25% 92%, rgba(2, 132, 199, 0.16), transparent 48%), linear-gradient(160deg, #0b1420 0%, #0f1b2b 45%, #0c1826 100%);
+}
+
+/* ---------- Navbar de vidrio ---------- */
+.navbar-marine {
+    background-color: rgba(22, 34, 47, 0.55) !important;
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand-badge {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* ---------- Tarjetas Bootstrap (Dashboard, Monitoreo, etc.) ---------- */
+.card {
+    background-color: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border-light) !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+[data-bs-theme="dark"] .card {
+    background-color: rgba(21, 28, 44, 0.55) !important;
+    border-color: var(--glass-border-dark) !important;
+}
+
+/* Encabezados sólidos de las tarjetas (bg-dark / bg-primary) se
+   conservan opacos a propósito: dan contraste y legibilidad sobre
+   el cuerpo translúcido de la tarjeta. Solo suavizamos el borde. */
+.card-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* El contenido tabular necesita algo más de opacidad para que el
+   texto siga siendo legible sobre el fondo con color. */
+.card-body:has(table) {
+    background-color: rgba(255, 255, 255, 0.35);
+}
+
+[data-bs-theme="dark"] .card-body:has(table) {
+    background-color: rgba(10, 15, 25, 0.35);
+}
+
+.table {
+    background-color: transparent;
+}
+
+/* Formulario de filtro de fechas (bg-light inline) */
+.card-body.bg-light {
+    background-color: rgba(255, 255, 255, 0.4) !important;
+    border-radius: 1rem;
+}
+
+[data-bs-theme="dark"] .card-body.bg-light {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Alertas */
+.alert {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.55);
+}
+
+/* ---------- Panel del asistente de datos (sv-panel) ---------- */
+.sv-panel {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border-light);
+    box-shadow: var(--glass-shadow);
+}
+
+.sv-searchbar {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.sv-chip {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.sv-history-count {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.sv-dropzone {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.sv-file-row {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.sv-details pre {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ---------- Modal de importación (vidrio sobre overlay difuminado) ---------- */
+.sv-modal-overlay {
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+.sv-modal {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(24px) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(24px) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border-light);
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.3);
+}
+
+.sv-modal-close {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------- Footer ---------- */
+footer.bg-body {
+    background-color: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-bs-theme="dark"] footer.bg-body {
+    background-color: rgba(11, 15, 25, 0.4) !important;
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ---------- Tarjetas del dashboard (index.css) por si se reutilizan ---------- */
+.module-card {
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border-light);
+}
+
+.disabled-card {
+    background: rgba(255, 255, 255, 0.35) !important;
+}
+
+.kpi-card, .chart-card {
+    background: rgba(21, 28, 44, 0.55) !important;
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}

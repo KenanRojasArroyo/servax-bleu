@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Servax_bleu_unificacion.Servicios
 {
     /// <summary>
-    /// Servicio Text-to-SQL usando un modelo local via Ollama (ej. qwen2.5:0.5b).
+    /// Servicio Text-to-SQL usando un modelo local via Ollama (ej. qwen2.5-coder:7b).
     /// Reemplaza la dependencia anterior de la API de Gemini: corre 100% local,
     /// sin costo por consulta y sin exponer datos de la empresa a un tercero.
     /// </summary>
@@ -19,28 +19,35 @@ namespace Servax_bleu_unificacion.Servicios
         private static readonly HttpClient _httpClient = new HttpClient();
 
         private readonly string _ollamaUrl = ConfigurationManager.AppSettings["OllamaUrl"] ?? "http://localhost:11434/api/generate";
-        private readonly string _ollamaModel = ConfigurationManager.AppSettings["OllamaModel"] ?? "qwen2.5:0.5b";
+        private readonly string _ollamaModel = ConfigurationManager.AppSettings["OllamaModel"] ?? "qwen2.5-coder:7b";
 
-        // TODO: a medida que se agreguen las tablas del ERD completo (corrales, alimento,
-        // biomasa, barcos, etc.) hay que actualizar este esquema para que el modelo
-        // sepa contra qué tablas puede generar SQL. Por ahora solo existe "Calidad".
+        // Esquema confirmado al 100% contra INFORMATION_SCHEMA.COLUMNS (16/09/2026).
+        // Las 11 tablas de ServaxBleu están verificadas columna por columna.
         private const string EsquemaTablas = @"
-- Tabla Calidad: id (INT, PK), Fecha (DATE), Temperatura (FLOAT), Oxigeno (FLOAT), Profundidad (FLOAT)";
+ - Tabla Calidad: id (INT, PK), Fecha (DATE), Temperatura (FLOAT), Oxigeno (FLOAT), Profundidad (FLOAT)
+ - Tabla Corral: IdCorral (INT, PK), Nombre (VARCHAR), Ubicacion (VARCHAR), CapacidadMaxima (DECIMAL), FechaInstalacion (DATE), Estado (VARCHAR), Observaciones (VARCHAR)
+ - Tabla Especie: IdEspecie (INT, PK), Nombre (VARCHAR), NombreCientifico (VARCHAR), Tipo (VARCHAR), EsToxica (BIT), Descripcion (VARCHAR), Activo (BIT)
+ - Tabla InventarioPez: IdInventario (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdEspecie (INT, FK -> Especie.IdEspecie), Cantidad (INT), PesoPromedioKg (DECIMAL), Estado (VARCHAR), FechaRegistro (DATE), Observaciones (VARCHAR)
+ - Tabla MuestreoAgua: IdMuestreo (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATE), Temperatura (FLOAT), Oxigeno (FLOAT), Profundidad (FLOAT), PH (FLOAT), Salinidad (FLOAT), Nutrientes (VARCHAR), Irregularidad (VARCHAR), Observaciones (VARCHAR)
+ - Tabla CrecimientoAnual: IdCrecimiento (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdEspecie (INT, FK -> Especie.IdEspecie), Anio (INT), PesoPromedioInicial (DECIMAL), PesoPromedioFinal (DECIMAL), TasaCrecimiento (FLOAT), Observaciones (VARCHAR)
+ - Tabla RegistroAlimentacion: IdRegistro (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdAlimento (INT, FK -> Alimento.IdAlimento), Fecha (DATE), CantidadKg (DECIMAL), Responsable (VARCHAR), Mortalidad (INT), Observaciones (VARCHAR)
+ - Tabla Alimento: IdAlimento (INT, PK), Nombre (VARCHAR), TipoAlimento (VARCHAR), UnidadMedida (VARCHAR), StockActual (DECIMAL), CostoUnitario (DECIMAL), Observaciones (VARCHAR)
+ - Tabla Barco: IdBarco (INT, PK), Nombre (VARCHAR), CapacidadToneladas (DECIMAL), Estado (VARCHAR), FechaAlta (DATE), Observaciones (VARCHAR)
+ - Tabla DistribucionAlimento: IdDistribucion (INT, PK), IdBarco (INT, FK -> Barco.IdBarco), IdAlimento (INT, FK -> Alimento.IdAlimento), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATETIME), CantidadToneladas (DECIMAL), FormulaAplicada (VARCHAR), Observaciones (VARCHAR)
+ - Tabla HistorialCorral: IdHistorial (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATETIME), CantidadPeces (INT), EstadoGeneral (VARCHAR), ResumenCalidadAgua (VARCHAR), ResumenNutrientes (VARCHAR), Observaciones (VARCHAR)";
 
         /// <summary>
         /// 1. Envía la pregunta en lenguaje natural al modelo local (Ollama) y regresa el SQL generado.
         /// </summary>
         public async Task<string> GenerarConsultaSqlAsync(string preguntaUsuario)
         {
-            string prompt = $@"Eres un generador estricto de SQL para Microsoft SQL Server (T-SQL).
-Devuelve ÚNICAMENTE la consulta SQL. No incluyas explicaciones, saludos ni bloques de código tipo ```sql.
-Solo puedes generar consultas de lectura (SELECT). Nunca generes DELETE, DROP, UPDATE, INSERT ni TRUNCATE.
+            string prompt = $@"Eres un generador estricto de SQL para Microsoft SQL Server (T-SQL). Devuelve ÚNICAMENTE la consulta SQL. No incluyas explicaciones, 
+            saludos ni bloques de código tipo ```sql. Solo puedes generar consultas de lectura (SELECT). Nunca generes DELETE, DROP, UPDATE, INSERT ni TRUNCATE.
+            Esquema de las tablas disponibles:
+            {EsquemaTablas}
 
-Esquema de las tablas disponibles:
-{EsquemaTablas}
-
-Pregunta del usuario: {preguntaUsuario}
-SQL:";
+            Pregunta del usuario: {preguntaUsuario}
+            SQL:";
 
             var body = new
             {
@@ -72,20 +79,23 @@ SQL:";
                 throw new Exception($"Ollama respondió con error ({response.StatusCode}): {responseJson}");
             }
 
-            using var doc = JsonDocument.Parse(responseJson);
-            string sqlGenerado = doc.RootElement.GetProperty("response").GetString()?.Trim();
-
-            if (string.IsNullOrWhiteSpace(sqlGenerado))
+            using (var doc = JsonDocument.Parse(responseJson))
             {
-                throw new Exception("El modelo no devolvió una consulta SQL.");
+                string sqlGenerado = doc.RootElement.GetProperty("response").GetString()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(sqlGenerado))
+                {
+                    throw new Exception("El modelo no devolvió una consulta SQL.");
+                }
+
+                // Limpieza básica por si el modelo incluye etiquetas markdown de todas formas.
+                sqlGenerado = sqlGenerado.Replace("```sql", "").Replace("```", "").Trim();
+
+                ValidarSoloLectura(sqlGenerado);
+
+                return sqlGenerado;
             }
 
-            // Limpieza básica por si el modelo incluye etiquetas markdown de todas formas.
-            sqlGenerado = sqlGenerado.Replace("```sql", "").Replace("```", "").Trim();
-
-            ValidarSoloLectura(sqlGenerado);
-
-            return sqlGenerado;
         }
 
         /// <summary>

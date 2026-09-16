@@ -1,0 +1,37 @@
+@model Servax_bleu_unificacion.Models.Corral
+@{
+    ViewBag.Title = "Eliminar Corral";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Eliminar Corral</h4>
+
+    <div class="card shadow-sm border-0 border-danger-subtle" style="max-width: 700px;">
+        <div class="card-body p-4">
+            <p class="mb-3">¿Seguro que quieres eliminar el corral <strong>@Model.Nombre</strong>?</p>
+            <p class="text-muted small mb-4">
+                Si tiene inventario, muestreos de agua, registros de alimentación o crecimiento
+                anual asociados, la eliminación será rechazada por la base de datos (integridad
+                referencial). En ese caso, considera marcarlo como "Inactivo" en vez de borrarlo.
+            </p>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Ubicación</dt>
+                <dd class="col-sm-8">@(Model.Ubicacion ?? "-")</dd>
+                <dt class="col-sm-4">Estado</dt>
+                <dd class="col-sm-8">@(Model.Estado ?? "-")</dd>
+            </dl>
+
+            @using (Html.BeginForm("Delete", "Corral", new { id = Model.IdCorral }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger shadow-sm">
+                        <i class="fa-solid fa-trash me-1"></i> Sí, eliminar
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

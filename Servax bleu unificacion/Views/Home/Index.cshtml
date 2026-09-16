@@ -1,95 +1,201 @@
-﻿@{
-    ViewBag.Title = "Inicio";
+﻿@model Servax_bleu_unificacion.Controllers.DashboardIndexViewModel
+@{
+    ViewBag.Title = "Dashboard de Monitoreo Acuícola";
 }
 
-<div class="container py-4">
-    <!-- Encabezado de marca -->
-    <div class="text-center mb-4">
-        <i class="fa-solid fa-fish-fins fa-3x text-primary mb-2"></i>
-        <h1 class="fw-bold text-dark mb-1">Servax Bleu</h1>
-        <p class="text-muted lead fs-6">Sistema de Control de Operaciones y Engorda de Atún</p>
-    </div>
+<div class="container-fluid py-4">
+    <h3 class="fw-bold mb-4 text-dark">Dashboard</h3>
 
-    <!-- Grid de 4 Secciones (2x2) -->
     <div class="row g-4">
-        <!-- 1. Arriba a la Izquierda: Calidad -->
+
+        <!-- Gráfica 1: Calidad vs Muestreo -->
         <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa-solid fa-clipboard-check fa-2x text-success me-3"></i>
-                        <h5 class="card-title mb-0 fw-bold text-dark">Calidad</h5>
-                    </div>
-                    <p class="card-text text-muted">Monitoreo de parámetros fisicoquímicos, frescura y estándares sanitarios.</p>
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <span class="badge bg-success-subtle text-success border border-success-subtle">Parámetros Óptimos</span>
-                        <small class="text-muted">Última revisión: Hoy</small>
+                    <h6 class="card-title fw-bold text-muted">TENDENCIA DE CALIDAD DEL AGUA</h6>
+                    <div style="position: relative; height:280px;">
+                        <canvas id="chartCalidad"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Arriba a la Derecha: Operaciones -->
+        <!-- Gráfica 2: Inventario con Especie y Corral -->
         <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa-solid fa-water fa-2x text-primary me-3"></i>
-                        <h5 class="card-title mb-0 fw-bold text-dark">Operaciones y Engorda</h5>
-                    </div>
-                    <p class="card-text text-muted">Control de jaulas marinas, biomasa estimativa y bitácora de siembra.</p>
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">12 Jaulas Activas</span>
-                        <small class="text-muted">Estado: Normal</small>
+                    <h6 class="card-title fw-bold text-muted">DISTRIBUCIÓN DEL INVENTARIO (POR CORRAL Y ESPECIE)</h6>
+                    <div style="position: relative; height:280px;">
+                        <canvas id="chartInventario"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. Abajo a la Izquierda: Alimentación e Inventarios -->
+        <!-- Gráfica 3: Crecimiento Anual con Especie -->
         <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-0">
+            <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="fa-solid fa-boxes-stacked fa-2x text-warning me-3"></i>
-                        <h5 class="card-title mb-0 fw-bold text-dark">Alimentación e Inventario</h5>
-                    </div>
-                    <p class="card-text text-muted">Registro de alimento suministrado, conversión alimenticia y stock restante.</p>
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Stock OK</span>
-                        <small class="text-muted">Autonomía: 15 días</small>
+                    <h6 class="card-title fw-bold text-muted">CRECIMIENTO POR ESPECIE (KG)</h6>
+                    <div style="position: relative; height:280px;">
+                        <canvas id="chartCrecimiento"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 4. Abajo a la Derecha: Tarjeta de Resumen -->
+        <!-- Gráfica 4: Registro Alimentación con Inventario y Especie -->
         <div class="col-md-6">
-            <div class="card h-100 shadow-sm border-0 bg-primary text-white">
-                <div class="card-body d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fa-solid fa-chart-pie fa-2x me-3"></i>
-                            <h5 class="card-title mb-0 fw-bold">Resumen Operativo</h5>
-                        </div>
-                        <p class="card-text opacity-75 small">Vista consolidada del estado general del sistema en tiempo real.</p>
-                    </div>
-                    <div class="row text-center g-2 mt-2">
-                        <div class="col-6">
-                            <div class="bg-white bg-opacity-10 p-2 rounded">
-                                <span class="d-block fs-4 fw-bold">98%</span>
-                                <small class="opacity-75">Eficiencia</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="bg-white bg-opacity-10 p-2 rounded">
-                                <span class="d-block fs-4 fw-bold">100%</span>
-                                <small class="opacity-75">Conformidad</small>
-                            </div>
-                        </div>
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="card-title fw-bold text-muted">ALIMENTACIÓN E INVENTARIO</h6>
+                    <div style="position: relative; height:280px;">
+                        <canvas id="chartAlimentacion"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // ==========================================
+        // 1. DATOS GRÁFICA 1: CALIDAD CON MUESTREO AGUA
+        // ==========================================
+        const labelsCalidad = [];
+        const datosTemp = [];
+        const datosOxigeno = [];
+
+        @if (Model != null && Model.CalidadMuestreo.Rows.Count > 0)
+        {
+            foreach (System.Data.DataRow row in Model.CalidadMuestreo.Rows)
+            {
+                var fechaStr = row["Fecha"] != DBNull.Value ? Convert.ToDateTime(row["Fecha"]).ToString("dd/MM") : "";
+                <text>
+                    labelsCalidad.push("@fechaStr");
+                    datosTemp.push(@(row["Temperatura"] != DBNull.Value ? row["Temperatura"].ToString().Replace(',', '.') : "0"));
+                    datosOxigeno.push(@(row["Oxigeno"] != DBNull.Value ? row["Oxigeno"].ToString().Replace(',', '.') : "0"));
+                </text>
+            }
+        }
+
+        new Chart(document.getElementById('chartCalidad'), {
+            type: 'line',
+            data: {
+                labels: labelsCalidad,
+                datasets: [
+                    { label: 'Temperatura (°C)', data: datosTemp, borderColor: '#0d6efd', fill: false },
+                    { label: 'Oxígeno (mg/L)', data: datosOxigeno, backgroundColor: '#dc3545', type: 'bar' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+
+        // ==========================================
+        // 2. DATOS GRÁFICA 2: INVENTARIO CON ESPECIE Y CORRAL
+        // ==========================================
+        const labelsInventario = [];
+        const datosCantidadPeces = [];
+
+        @if (Model != null && Model.InventarioCorralEspecie.Rows.Count > 0)
+        {
+            foreach (System.Data.DataRow row in Model.InventarioCorralEspecie.Rows)
+            {
+                var labelTag = $"{row["Corral"]} - {row["Especie"]}";
+                <text>
+                    labelsInventario.push("@labelTag");
+                    datosCantidadPeces.push(@(row["CantidadPeces"] != DBNull.Value ? row["CantidadPeces"].ToString().Replace(',', '.') : "0"));
+                </text>
+            }
+        }
+
+        new Chart(document.getElementById('chartInventario'), {
+            type: 'bar',
+            data: {
+                labels: labelsInventario,
+                datasets: [
+                    { label: 'Cantidad de Peces', data: datosCantidadPeces, backgroundColor: '#20c997' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+
+        // ==========================================
+        // 3. DATOS GRÁFICA 3: CRECIMIENTO ANUAL CON ESPECIE
+        // ==========================================
+        const labelsCrecimiento = [];
+        const datosPesoPromedio = [];
+
+        @if (Model != null && Model.CrecimientoEspecie.Rows.Count > 0)
+        {
+            foreach (System.Data.DataRow row in Model.CrecimientoEspecie.Rows)
+            {
+                var tagAnio = $"{row["Anio"]} ({row["Especie"]})";
+                <text>
+                    labelsCrecimiento.push("@tagAnio");
+                    datosPesoPromedio.push(@(row["PesoPromedio"] != DBNull.Value ? row["PesoPromedio"].ToString().Replace(',', '.') : "0"));
+                </text>
+            }
+        }
+
+        new Chart(document.getElementById('chartCrecimiento'), {
+            type: 'line',
+            data: {
+                labels: labelsCrecimiento,
+                datasets: [
+                    { label: 'Peso Promedio (kg)', data: datosPesoPromedio, borderColor: '#ffc107', tension: 0.2 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+
+        // ==========================================
+        // 4. DATOS GRÁFICA 4: ALIMENTACIÓN CON INVENTARIO Y ESPECIE
+        // ==========================================
+        const labelsAlimentacion = [];
+        const datosAlimento = [];
+        const datosPecesAlimentacion = [];
+
+        @if (Model != null && Model.AlimentacionInventario.Rows.Count > 0)
+        {
+            foreach (System.Data.DataRow row in Model.AlimentacionInventario.Rows)
+            {
+                var fStr = row["Fecha"] != DBNull.Value ? Convert.ToDateTime(row["Fecha"]).ToString("dd/MM") : "";
+                <text>
+                    labelsAlimentacion.push("@fStr (@row["Especie"])");
+                    datosAlimento.push(@(row["TotalAlimento"] != DBNull.Value ? row["TotalAlimento"].ToString().Replace(',', '.') : "0"));
+                    datosPecesAlimentacion.push(@(row["TotalPeces"] != DBNull.Value ? row["TotalPeces"].ToString().Replace(',', '.') : "0"));
+                </text>
+            }
+        }
+
+        new Chart(document.getElementById('chartAlimentacion'), {
+            type: 'bar',
+            data: {
+                labels: labelsAlimentacion,
+                datasets: [
+                    { label: 'Alimento (kg)', data: datosAlimento, backgroundColor: '#fd7e14', yAxisID: 'y' },
+                    { label: 'Total Peces', data: datosPecesAlimentacion, borderColor: '#6f42c1', type: 'line', yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { type: 'linear', position: 'left' },
+                    y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+
+    });
+</script>

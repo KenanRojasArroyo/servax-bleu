@@ -1,3 +1,6 @@
 <Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path=".gitignore" />
+  </Folder>
   <Project Path="Servax bleu unificacion/Servax bleu unificacion.csproj" Id="4c2d7413-ca31-45c8-8f88-e85d514cc9fe" />
 </Solution>

@@ -1,0 +1,30 @@
+@model Servax_bleu_unificacion.Models.Especie
+@{
+    ViewBag.Title = "Eliminar Especie";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Eliminar Especie</h4>
+
+    <div class="card shadow-sm border-0 border-danger-subtle" style="max-width: 700px;">
+        <div class="card-body p-4">
+            <p class="mb-3">¿Seguro que quieres eliminar la especie <strong>@Model.Nombre</strong>?</p>
+            <p class="text-muted small mb-4">
+                Si tiene inventario o registros de crecimiento anual asociados, la eliminación
+                será rechazada por la base de datos (integridad referencial). En ese caso,
+                considera desmarcar "Activo" en vez de borrarla.
+            </p>
+
+            @using (Html.BeginForm("Delete", "Especie", new { id = Model.IdEspecie }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger shadow-sm">
+                        <i class="fa-solid fa-trash me-1"></i> Sí, eliminar
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

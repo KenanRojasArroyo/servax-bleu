@@ -13,10 +13,12 @@
 packages/
 *.nupkg
 
-# Web.config contiene credenciales reales (SMTP, cadena de conexión).
-# Se sube Web.config.example como plantilla; Web.config real NUNCA se commitea.
-**/Web.config
-!**/Web.config.example
-
-# Web.Debug.config / Web.Release.config pueden quedarse si no traen secretos,
-# pero revísalos antes de confirmar.
+# SOLO el Web.config de la raíz del proyecto contiene credenciales reales
+# (SMTP, cadena de conexión, etc). Se sube Web.config.example como plantilla;
+# este Web.config real NUNCA se commitea.
+#
+# OJO: Views/Web.config es un archivo DISTINTO (configuración de Razor,
+# sin secretos) y SÍ debe subirse a Git — por eso la ruta de abajo es
+# específica y no un patrón "**/Web.config" que también lo hubiera bloqueado.
+/Servax bleu unificacion/Web.config
+!/Servax bleu unificacion/Web.config.example

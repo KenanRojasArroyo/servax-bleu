@@ -1,0 +1,43 @@
+@model Servax_bleu_unificacion.Models.Especie
+@{
+    ViewBag.Title = "Detalle de la Especie";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-eye text-primary me-2"></i>Detalle de la Especie</h4>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @if (Model.EsToxica)
+            {
+                <div class="alert alert-danger">
+                    <i class="fa-solid fa-skull-crossbones me-2"></i>Esta especie está marcada como <strong>tóxica</strong>.
+                </div>
+            }
+
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Nombre</dt>
+                <dd class="col-sm-8">@Model.Nombre</dd>
+
+                <dt class="col-sm-4">Nombre Científico</dt>
+                <dd class="col-sm-8 fst-italic">@(Model.NombreCientifico ?? "-")</dd>
+
+                <dt class="col-sm-4">Tipo</dt>
+                <dd class="col-sm-8">@(Model.Tipo ?? "-")</dd>
+
+                <dt class="col-sm-4">Descripción</dt>
+                <dd class="col-sm-8">@(Model.Descripcion ?? "-")</dd>
+
+                <dt class="col-sm-4">Estado</dt>
+                <dd class="col-sm-8">@(Model.Activo ? "Activa" : "Inactiva")</dd>
+            </dl>
+
+            <div class="d-flex gap-2 mt-3">
+                <a href="@Url.Action("Edit", new { id = Model.IdEspecie })" class="btn btn-primary">
+                    <i class="fa-solid fa-pen me-1"></i> Editar
+                </a>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Volver al listado</a>
+            </div>
+        </div>
+    </div>
+</div>
