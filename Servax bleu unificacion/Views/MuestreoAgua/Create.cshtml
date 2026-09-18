@@ -1,0 +1,75 @@
+@model Servax_bleu_unificacion.Models.MuestreoAgua
+@{
+    ViewBag.Title = "Nuevo Muestreo de Agua";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-plus text-primary me-2"></i>Nuevo Muestreo de Agua</h4>
+
+    <div class="alert alert-info small">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        Si alg&uacute;n valor sale fuera de rango, se dispara autom&aacute;ticamente una alerta por correo al responsable.
+    </div>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Create", "MuestreoAgua", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Corral *</label>
+                        @Html.DropDownListFor(m => m.IdCorral, (List<SelectListItem>)ViewBag.Corrales, "-- Selecciona --", new { @class = "form-select" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fecha *</label>
+                        @Html.TextBoxFor(m => m.Fecha, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Temperatura (&deg;C)</label>
+                        @Html.TextBoxFor(m => m.Temperatura, new { @class = "form-control", type = "number", step = "0.1" })
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Ox&iacute;geno (mg/L)</label>
+                        @Html.TextBoxFor(m => m.Oxigeno, new { @class = "form-control", type = "number", step = "0.1" })
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Profundidad (m)</label>
+                        @Html.TextBoxFor(m => m.Profundidad, new { @class = "form-control", type = "number", step = "0.1" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">PH</label>
+                        @Html.TextBoxFor(m => m.PH, new { @class = "form-control", type = "number", step = "0.1" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Salinidad (ppt)</label>
+                        @Html.TextBoxFor(m => m.Salinidad, new { @class = "form-control", type = "number", step = "0.1" })
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nutrientes</label>
+                    @Html.TextBoxFor(m => m.Nutrientes, new { @class = "form-control" })
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Irregularidad detectada</label>
+                    @Html.TextBoxFor(m => m.Irregularidad, new { @class = "form-control" })
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Observaciones</label>
+                    @Html.TextAreaFor(m => m.Observaciones, new { @class = "form-control", rows = 2 })
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

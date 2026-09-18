@@ -1,0 +1,23 @@
+@model Servax_bleu_unificacion.Models.Alimento
+@{
+    ViewBag.Title = "Eliminar Alimento";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Eliminar Alimento</h4>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            <p class="mb-4">¿Seguro que quieres eliminar el alimento <strong>@Model.Nombre</strong>?</p>
+
+            @using (Html.BeginForm("Delete", "Alimento", new { id = Model.IdAlimento }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger shadow-sm"><i class="fa-solid fa-trash me-1"></i> Sí, eliminar</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

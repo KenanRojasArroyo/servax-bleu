@@ -1,0 +1,27 @@
+@model Servax_bleu_unificacion.Models.Barco
+@{
+    ViewBag.Title = "Eliminar Barco";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Eliminar Barco</h4>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            <p class="mb-3">¿Seguro que quieres eliminar el barco <strong>@Model.Nombre</strong>?</p>
+            <p class="text-muted small mb-4">
+                Si tiene distribuciones de carnada asociadas, la eliminación será rechazada por la base de
+                datos. En ese caso, considera marcarlo como "Inactivo" en vez de borrarlo.
+            </p>
+
+            @using (Html.BeginForm("Delete", "Barco", new { id = Model.IdBarco }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger shadow-sm"><i class="fa-solid fa-trash me-1"></i> Sí, eliminar</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

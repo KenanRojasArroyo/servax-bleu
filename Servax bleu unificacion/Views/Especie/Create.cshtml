@@ -1,14 +1,14 @@
-@model Servax_bleu_unificacion.Models.Corral
+@model Servax_bleu_unificacion.Models.Especie
 @{
-    ViewBag.Title = "Nuevo Corral";
+    ViewBag.Title = "Nueva Especie";
 }
 
 <div class="container-fluid px-4 mt-4">
-    <h4 class="fw-bold mb-4"><i class="fa-solid fa-plus text-primary me-2"></i>Nuevo Corral</h4>
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-plus text-primary me-2"></i>Nueva Especie</h4>
 
     <div class="card shadow-sm border-0" style="max-width: 700px;">
         <div class="card-body p-4">
-            @using (Html.BeginForm("Create", "Corral", FormMethod.Post))
+            @using (Html.BeginForm("Create", "Especie", FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
@@ -18,31 +18,26 @@
                     @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Ubicación</label>
-                    @Html.TextBoxFor(m => m.Ubicacion, new { @class = "form-control" })
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Capacidad Máxima</label>
-                        @Html.TextBoxFor(m => m.CapacidadMaxima, new { @class = "form-control", type = "number", step = "0.01" })
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Fecha de Instalación</label>
-                        @Html.TextBoxFor(m => m.FechaInstalacion, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                    </div>
+                    <label class="form-label fw-bold">Nombre Científico</label>
+                    @Html.TextBoxFor(m => m.NombreCientifico, new { @class = "form-control" })
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Estado</label>
-                    @Html.DropDownListFor(m => m.Estado, new List<SelectListItem>
-                    {
-                        new SelectListItem { Text = "Activo", Value = "Activo" },
-                        new SelectListItem { Text = "Inactivo", Value = "Inactivo" },
-                        new SelectListItem { Text = "En mantenimiento", Value = "En mantenimiento" }
-                    }, "-- Selecciona --", new { @class = "form-select" })
+                    <label class="form-label fw-bold">Tipo</label>
+                    @Html.TextBoxFor(m => m.Tipo, new { @class = "form-control", placeholder = "Ej. Atún aleta azul, Atún aleta amarilla..." })
                 </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Observaciones</label>
-                    @Html.TextAreaFor(m => m.Observaciones, new { @class = "form-control", rows = 3 })
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descripción</label>
+                    @Html.TextAreaFor(m => m.Descripcion, new { @class = "form-control", rows = 3 })
+                </div>
+                <div class="form-check mb-2">
+                    @Html.CheckBoxFor(m => m.EsToxica, new { @class = "form-check-input" })
+                    <label class="form-check-label fw-bold text-danger">
+                        <i class="fa-solid fa-skull-crossbones me-1"></i>Es tóxica (dispara alertas)
+                    </label>
+                </div>
+                <div class="form-check mb-4">
+                    @Html.CheckBoxFor(m => m.Activo, new { @class = "form-check-input" })
+                    <label class="form-check-label fw-bold">Activa</label>
                 </div>
 
                 <div class="d-flex gap-2">

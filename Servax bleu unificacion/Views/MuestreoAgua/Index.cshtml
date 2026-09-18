@@ -1,0 +1,127 @@
+@model List<Servax_bleu_unificacion.Models.MuestreoAgua>
+@{
+    ViewBag.Title = "Muestreos de Agua";
+}
+
+<div class="container-fluid px-4 mt-4">
+
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4">
+            <i class="fa-solid fa-circle-check me-2"></i>@TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h4 class="fw-bold mb-0"><i class="fa-solid fa-vial text-primary me-2"></i>Muestreos de Agua</h4>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-success shadow-sm" data-bs-toggle="modal" data-bs-target="#modalExcel">
+                <i class="fa-solid fa-file-excel me-1"></i> Importar Excel
+            </button>
+            <a href="@Url.Action("Create")" class="btn btn-primary shadow-sm">
+                <i class="fa-solid fa-plus me-1"></i> Nuevo Muestreo
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtro por corral -->
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-auto">
+            <select name="idCorral" class="form-select" onchange="this.form.submit()">
+                <option value="">Todos los corrales</option>
+                @foreach (var c in (List<SelectListItem>)ViewBag.Corrales)
+                {
+                    <option value="@c.Value" selected="@(ViewBag.IdCorralFiltro != null && ViewBag.IdCorralFiltro.ToString() == c.Value)">@c.Text</option>
+                }
+            </select>
+        </div>
+    </form>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Corral</th>
+                        <th>Fecha</th>
+                        <th>Temp. (&deg;C)</th>
+                        <th>Ox&iacute;geno</th>
+                        <th>PH</th>
+                        <th>Salinidad</th>
+                        <th>Irregularidad</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var m in Model)
+                        {
+                            <tr class="@(!string.IsNullOrWhiteSpace(m.Irregularidad) ? "table-warning" : "")">
+                                <td class="fw-semibold">@m.NombreCorral</td>
+                                <td>@m.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@(m.Temperatura?.ToString("N1") ?? "-")</td>
+                                <td>@(m.Oxigeno?.ToString("N1") ?? "-")</td>
+                                <td>@(m.PH?.ToString("N1") ?? "-")</td>
+                                <td>@(m.Salinidad?.ToString("N1") ?? "-")</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(m.Irregularidad))
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="fa-solid fa-triangle-exclamation me-1"></i>@m.Irregularidad</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a href="@Url.Action("Edit", new { id = m.IdMuestreo })" class="btn btn-sm btn-outline-primary" title="Editar">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = m.IdMuestreo })" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4">No hay muestreos registrados todav&iacute;a.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de importación Excel -->
+<div class="modal fade" id="modalExcel" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @using (Html.BeginForm("CargarExcel", "MuestreoAgua", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-file-excel text-success me-2"></i>Importar muestreos desde Excel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">
+                        Columnas esperadas (el orden no importa, se detectan por nombre de encabezado):
+                        <strong>Corral</strong>, Fecha, Temperatura, Oxigeno, Profundidad, PH, Salinidad, Nutrientes, Irregularidad, Observaciones.
+                        La columna <strong>Corral</strong> debe tener el nombre exacto ya dado de alta en el sistema.
+                    </p>
+                    <input type="file" name="archivoExcel" accept=".xlsx,.xls" class="form-control" required />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="fa-solid fa-upload me-1"></i>Importar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

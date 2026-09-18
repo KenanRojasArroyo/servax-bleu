@@ -1,0 +1,59 @@
+@model Servax_bleu_unificacion.Models.RegistroAlimentacion
+@{
+    ViewBag.Title = "Editar Registro de Alimentación";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-pen text-primary me-2"></i>Editar Registro de Alimentación</h4>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Edit", "RegistroAlimentacion", new { id = Model.IdRegistro }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.IdRegistro)
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Corral *</label>
+                        @Html.DropDownListFor(m => m.IdCorral, (List<SelectListItem>)ViewBag.Corrales, new { @class = "form-select" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Alimento *</label>
+                        @Html.DropDownListFor(m => m.IdAlimento, (List<SelectListItem>)ViewBag.Alimentos, new { @class = "form-select" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fecha *</label>
+                        @Html.TextBoxFor(m => m.Fecha, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Cantidad (kg) *</label>
+                        @Html.TextBoxFor(m => m.CantidadKg, new { @class = "form-control", type = "number", step = "0.01" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Responsable</label>
+                        @Html.TextBoxFor(m => m.Responsable, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-danger">Mortalidad (peces muertos)</label>
+                        @Html.TextBoxFor(m => m.Mortalidad, new { @class = "form-control", type = "number", min = 0 })
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Observaciones</label>
+                    @Html.TextAreaFor(m => m.Observaciones, new { @class = "form-control", rows = 2 })
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

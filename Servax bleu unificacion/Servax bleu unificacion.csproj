@@ -231,18 +231,32 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Conexion.cs" />
+    <Compile Include="Controllers\AlimentoController.cs" />
+    <Compile Include="Controllers\BarcoController.cs" />
     <Compile Include="Controllers\CorralController.cs" />
+    <Compile Include="Controllers\CrecimientoAnualController.cs" />
+    <Compile Include="Controllers\DistribucionAlimentoController.cs" />
     <Compile Include="Controllers\EspecieController.cs" />
+    <Compile Include="Controllers\HistorialCorralController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\MuestreoAgua.cs" />
+    <Compile Include="Controllers\InventarioPezController.cs" />
+    <Compile Include="Controllers\MuestreoAguaController.cs" />
+    <Compile Include="Controllers\RegistroAlimentacionController.cs" />
+    <Compile Include="Controllers\ReporteController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Alimento.cs" />
+    <Compile Include="Models\Barco.cs" />
     <Compile Include="Models\Corral.cs" />
+    <Compile Include="Models\CrecimientoAnual.cs" />
     <Compile Include="Models\DashboardIndexViewModel.cs" />
+    <Compile Include="Models\DistribucionAlimento.cs" />
     <Compile Include="Models\Especie.cs" />
+    <Compile Include="Models\HistorialCorral.cs" />
     <Compile Include="Models\InventarioPez.cs" />
     <Compile Include="Models\MuestreoAgua.cs" />
+    <Compile Include="Models\RegistroAlimentacion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicios\ServicioNotificaciones.cs" />
     <Compile Include="Servicios\TextToSqlService.cs" />
@@ -276,9 +290,13 @@
     <Content Include="Scripts\bootstrap.esm.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="README.md" />
     <Content Include="Docs\ERD_ServaxBleu.md" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\dashboard-charts.js" />
+    <Content Include="Scripts\empathy-map-engine.js" />
+    <Content Include="Scripts\entrevista-expertos-engine.js" />
+    <Content Include="Scripts\investigacion-motor-base.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
@@ -289,7 +307,10 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Scripts\observacion-directa-engine.js" />
     <Content Include="Scripts\requisitos-engine.js" />
+    <Content Include="Scripts\roper-dynagram-engine.js" />
+    <Content Include="Scripts\usuarios-extremos-engine.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -306,6 +327,18 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\Monitoreo.cshtml" />
     <Content Include="Web.config.example" />
+    <Content Include="Views\InventarioPez\Create.cshtml" />
+    <Content Include="Views\InventarioPez\Delete.cshtml" />
+    <Content Include="Views\InventarioPez\Edit.cshtml" />
+    <Content Include="Views\InventarioPez\Index.cshtml" />
+    <Content Include="Views\MuestreoAgua\Create.cshtml" />
+    <Content Include="Views\MuestreoAgua\Delete.cshtml" />
+    <Content Include="Views\MuestreoAgua\Edit.cshtml" />
+    <Content Include="Views\MuestreoAgua\Index.cshtml" />
+    <Content Include="Views\DistribucionAlimento\Delete.cshtml" />
+    <Content Include="Views\DistribucionAlimento\Distribuir.cshtml" />
+    <Content Include="Views\DistribucionAlimento\Index.cshtml" />
+    <Content Include="Views\Reporte\Mortalidad.cshtml" />
     <Content Include="Views\Corral\Create.cshtml" />
     <Content Include="Views\Corral\Delete.cshtml" />
     <Content Include="Views\Corral\Details.cshtml" />
@@ -316,6 +349,25 @@
     <Content Include="Views\Especie\Details.cshtml" />
     <Content Include="Views\Especie\Edit.cshtml" />
     <Content Include="Views\Especie\Index.cshtml" />
+    <Content Include="Views\HistorialCorral\Create.cshtml" />
+    <Content Include="Views\HistorialCorral\Delete.cshtml" />
+    <Content Include="Views\HistorialCorral\Index.cshtml" />
+    <Content Include="Views\RegistroAlimentacion\Create.cshtml" />
+    <Content Include="Views\RegistroAlimentacion\Delete.cshtml" />
+    <Content Include="Views\RegistroAlimentacion\Edit.cshtml" />
+    <Content Include="Views\RegistroAlimentacion\Index.cshtml" />
+    <Content Include="Views\Alimento\Create.cshtml" />
+    <Content Include="Views\Alimento\Delete.cshtml" />
+    <Content Include="Views\Alimento\Edit.cshtml" />
+    <Content Include="Views\Alimento\Index.cshtml" />
+    <Content Include="Views\Barco\Create.cshtml" />
+    <Content Include="Views\Barco\Delete.cshtml" />
+    <Content Include="Views\Barco\Edit.cshtml" />
+    <Content Include="Views\Barco\Index.cshtml" />
+    <Content Include="Views\CrecimientoAnual\Create.cshtml" />
+    <Content Include="Views\CrecimientoAnual\Delete.cshtml" />
+    <Content Include="Views\CrecimientoAnual\Edit.cshtml" />
+    <Content Include="Views\CrecimientoAnual\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

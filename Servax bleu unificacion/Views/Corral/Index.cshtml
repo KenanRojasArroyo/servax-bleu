@@ -1,6 +1,6 @@
-@model List<Servax_bleu_unificacion.Models.Especie>
+@model List<Servax_bleu_unificacion.Models.Corral>
 @{
-    ViewBag.Title = "Especies";
+    ViewBag.Title = "Corrales";
 }
 
 <div class="container-fluid px-4 mt-4">
@@ -21,9 +21,9 @@
     }
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0"><i class="fa-solid fa-fish text-primary me-2"></i>Especies</h4>
+        <h4 class="fw-bold mb-0"><i class="fa-solid fa-water text-primary me-2"></i>Corrales</h4>
         <a href="@Url.Action("Create")" class="btn btn-primary shadow-sm">
-            <i class="fa-solid fa-plus me-1"></i> Nueva Especie
+            <i class="fa-solid fa-plus me-1"></i> Nuevo Corral
         </a>
     </div>
 
@@ -33,47 +33,36 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Nombre</th>
-                        <th>Nombre Científico</th>
-                        <th>Tipo</th>
-                        <th>Tóxica</th>
-                        <th>Activo</th>
+                        <th>Ubicaci&oacute;n</th>
+                        <th>Capacidad M&aacute;x.</th>
+                        <th>Fecha Instalaci&oacute;n</th>
+                        <th>Estado</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model != null && Model.Count > 0)
                     {
-                        foreach (var especie in Model)
+                        foreach (var corral in Model)
                         {
-                            <tr class="@(especie.EsToxica ? "table-warning" : "")">
-                                <td class="fw-semibold">@especie.Nombre</td>
-                                <td class="fst-italic">@especie.NombreCientifico</td>
-                                <td>@especie.Tipo</td>
+                            <tr>
+                                <td class="fw-semibold">@corral.Nombre</td>
+                                <td>@corral.Ubicacion</td>
+                                <td>@(corral.CapacidadMaxima?.ToString("N2") ?? "-")</td>
+                                <td>@(corral.FechaInstalacion?.ToString("dd/MM/yyyy") ?? "-")</td>
                                 <td>
-                                    @if (especie.EsToxica)
-                                    {
-                                        <span class="badge rounded-pill bg-danger">
-                                            <i class="fa-solid fa-skull-crossbones me-1"></i>Tóxica
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge rounded-pill bg-success">No</span>
-                                    }
-                                </td>
-                                <td>
-                                    <span class="badge rounded-pill bg-@(especie.Activo ? "primary" : "secondary")">
-                                        @(especie.Activo ? "Activo" : "Inactivo")
+                                    <span class="badge rounded-pill bg-@(corral.Estado == "Activo" ? "success" : "secondary")">
+                                        @(corral.Estado ?? "-")
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="@Url.Action("Details", new { id = especie.IdEspecie })" class="btn btn-sm btn-outline-secondary" title="Ver">
+                                    <a href="@Url.Action("Details", new { id = corral.IdCorral })" class="btn btn-sm btn-outline-secondary" title="Ver">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
-                                    <a href="@Url.Action("Edit", new { id = especie.IdEspecie })" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <a href="@Url.Action("Edit", new { id = corral.IdCorral })" class="btn btn-sm btn-outline-primary" title="Editar">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                    <a href="@Url.Action("Delete", new { id = especie.IdEspecie })" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <a href="@Url.Action("Delete", new { id = corral.IdCorral })" class="btn btn-sm btn-outline-danger" title="Eliminar">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
                                 </td>
@@ -84,7 +73,7 @@
                     {
                         <tr>
                             <td colspan="6" class="text-center text-muted py-4">
-                                No hay especies registradas todavía.
+                                No hay corrales registrados todav&iacute;a.
                             </td>
                         </tr>
                     }

@@ -3,16 +3,35 @@
     ViewBag.Title = "Dashboard de Monitoreo Acuícola";
 }
 
+@section Styles {
+    <style>
+        /* Panel Glassmorphism Azul para consistencia con Monitoreo */
+        .glass-blue-panel {
+            background: rgba(14, 165, 233, 0.08) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(14, 165, 233, 0.2) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        /* Ajustes para modo oscuro */
+        [data-bs-theme="dark"] .glass-blue-panel {
+            background: rgba(14, 165, 233, 0.05) !important;
+            border: 1px solid rgba(14, 165, 233, 0.15) !important;
+        }
+    </style>
+}
+
 <div class="container-fluid py-4">
-    <h3 class="fw-bold mb-4 text-dark">Dashboard</h3>
+    <h3 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard Operativo</h3>
 
     <div class="row g-4">
 
         <!-- Gráfica 1: Calidad vs Muestreo -->
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold text-muted">TENDENCIA DE CALIDAD DEL AGUA</h6>
+            <div class="card border-0 h-100 glass-blue-panel rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="card-title fw-bold text-primary mb-3"><i class="fa-solid fa-water me-2"></i>TENDENCIA DE CALIDAD DEL AGUA</h6>
                     <div style="position: relative; height:280px;">
                         <canvas id="chartCalidad"></canvas>
                     </div>
@@ -22,9 +41,9 @@
 
         <!-- Gráfica 2: Inventario con Especie y Corral -->
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold text-muted">DISTRIBUCIÓN DEL INVENTARIO (POR CORRAL Y ESPECIE)</h6>
+            <div class="card border-0 h-100 glass-blue-panel rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="card-title fw-bold text-primary mb-3"><i class="fa-solid fa-fish-fins me-2"></i>DISTRIBUCIÓN DEL INVENTARIO</h6>
                     <div style="position: relative; height:280px;">
                         <canvas id="chartInventario"></canvas>
                     </div>
@@ -34,9 +53,9 @@
 
         <!-- Gráfica 3: Crecimiento Anual con Especie -->
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold text-muted">CRECIMIENTO POR ESPECIE (KG)</h6>
+            <div class="card border-0 h-100 glass-blue-panel rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="card-title fw-bold text-primary mb-3"><i class="fa-solid fa-arrow-trend-up me-2"></i>CRECIMIENTO POR ESPECIE (KG)</h6>
                     <div style="position: relative; height:280px;">
                         <canvas id="chartCrecimiento"></canvas>
                     </div>
@@ -46,9 +65,9 @@
 
         <!-- Gráfica 4: Registro Alimentación con Inventario y Especie -->
         <div class="col-md-6">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold text-muted">ALIMENTACIÓN E INVENTARIO</h6>
+            <div class="card border-0 h-100 glass-blue-panel rounded-4">
+                <div class="card-body p-4">
+                    <h6 class="card-title fw-bold text-primary mb-3"><i class="fa-solid fa-cubes-stacked me-2"></i>ALIMENTACIÓN E INVENTARIO</h6>
                     <div style="position: relative; height:280px;">
                         <canvas id="chartAlimentacion"></canvas>
                     </div>
@@ -90,8 +109,8 @@
             data: {
                 labels: labelsCalidad,
                 datasets: [
-                    { label: 'Temperatura (°C)', data: datosTemp, borderColor: '#0d6efd', fill: false },
-                    { label: 'Oxígeno (mg/L)', data: datosOxigeno, backgroundColor: '#dc3545', type: 'bar' }
+                    { label: 'Temperatura (°C)', data: datosTemp, borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', fill: true, tension: 0.3 },
+                    { label: 'Oxígeno (mg/L)', data: datosOxigeno, backgroundColor: '#dc3545', type: 'bar', borderRadius: 4 }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false }
@@ -121,7 +140,7 @@
             data: {
                 labels: labelsInventario,
                 datasets: [
-                    { label: 'Cantidad de Peces', data: datosCantidadPeces, backgroundColor: '#20c997' }
+                    { label: 'Cantidad de Peces', data: datosCantidadPeces, backgroundColor: '#20c997', borderRadius: 4 }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false }
@@ -151,7 +170,7 @@
             data: {
                 labels: labelsCrecimiento,
                 datasets: [
-                    { label: 'Peso Promedio (kg)', data: datosPesoPromedio, borderColor: '#ffc107', tension: 0.2 }
+                    { label: 'Peso Promedio (kg)', data: datosPesoPromedio, borderColor: '#ffc107', backgroundColor: 'rgba(255, 193, 7, 0.1)', fill: true, tension: 0.3 }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false }
@@ -183,8 +202,8 @@
             data: {
                 labels: labelsAlimentacion,
                 datasets: [
-                    { label: 'Alimento (kg)', data: datosAlimento, backgroundColor: '#fd7e14', yAxisID: 'y' },
-                    { label: 'Total Peces', data: datosPecesAlimentacion, borderColor: '#6f42c1', type: 'line', yAxisID: 'y1' }
+                    { label: 'Alimento (kg)', data: datosAlimento, backgroundColor: '#fd7e14', yAxisID: 'y', borderRadius: 4 },
+                    { label: 'Total Peces', data: datosPecesAlimentacion, borderColor: '#6f42c1', backgroundColor: 'rgba(111, 66, 193, 0.1)', type: 'line', fill: true, tension: 0.3, yAxisID: 'y1' }
                 ]
             },
             options: {

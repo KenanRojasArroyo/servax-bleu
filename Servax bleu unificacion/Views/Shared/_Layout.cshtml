@@ -26,7 +26,7 @@
         }
 
         .navbar-marine .nav-link {
-            color: #94a3b8; /* Gris azulado suave */
+            color: #ffffff; /* Cambiado de gris a blanco puro */
             font-size: 0.925rem;
             font-weight: 500;
             padding: 0.5rem 0.85rem !important;
@@ -35,12 +35,12 @@
         }
 
             .navbar-marine .nav-link:hover {
-                color: #f8fafc;
-                background-color: rgba(255, 255, 255, 0.06);
+                color: #ffffff;
+                background-color: rgba(255, 255, 255, 0.15); /* Efecto hover adaptado para contrastar */
             }
 
             .navbar-marine .nav-link.active {
-                color: #38bdf8; /* Azul cian brillante */
+                color: #38bdf8; /* Azul cian brillante para saber en qué página estás */
                 background-color: rgba(56, 189, 248, 0.1);
             }
 
@@ -51,7 +51,7 @@
 
             .nav-link.disabled-module:hover {
                 background-color: transparent;
-                color: #94a3b8;
+                color: #ffffff; /* Cambiado a blanco en hover */
             }
 
         .btn-theme-toggle {
@@ -111,19 +111,28 @@
                             <span>Monitoreo</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled-module d-flex align-items-center gap-2" href="#" title="Módulo en desarrollo">
-                            <i class="fa-solid fa-droplet opacity-75"></i>
-                            <span>Control de Calidad</span>
-                            <span class="badge rounded-pill dev-badge text-uppercase text-muted ms-1">Próximamente</span>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navCorralesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-water opacity-75"></i>
+                            <span>Corrales y Biomasa</span>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navCorralesDropdown">
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Corral")"><i class="fa-solid fa-water me-2 opacity-75"></i>Corrales</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Especie")"><i class="fa-solid fa-fish me-2 opacity-75"></i>Especies</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "InventarioPez")"><i class="fa-solid fa-boxes-stacked me-2 opacity-75"></i>Inventario de Peces</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "MuestreoAgua")"><i class="fa-solid fa-vial me-2 opacity-75"></i>Muestreos de Agua</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "CrecimientoAnual")"><i class="fa-solid fa-chart-line me-2 opacity-75"></i>Crecimiento Anual</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled-module d-flex align-items-center gap-2" href="#" title="Módulo en desarrollo">
-                            <i class="fa-solid fa-boxes-stacked opacity-75"></i>
-                            <span>Alimentación</span>
-                            <span class="badge rounded-pill dev-badge text-uppercase text-muted ms-1">Próximamente</span>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navAlimentacionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-ship opacity-75"></i>
+                            <span>Alimentación y Barcos</span>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navAlimentacionDropdown">
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "DistribucionAlimento")"><i class="fa-solid fa-scale-balanced me-2 opacity-75"></i>Distribución de Carnada</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Mortalidad", "Reporte")"><i class="fa-solid fa-chart-column me-2 opacity-75"></i>Reporte de Mortalidad</a></li>
+                        </ul>
                     </li>
                 </ul>
 
@@ -152,32 +161,32 @@
 
     <!-- Script de Alternancia Modo Oscuro/Claro -->
     <script>
-        const themeToggleBtn = document.getElementById('btnThemeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const htmlElement = document.documentElement;
+                                        const themeToggleBtn = document.getElementById('btnThemeToggle');
+                                        const themeIcon = document.getElementById('themeIcon');
+                                        const htmlElement = document.documentElement;
 
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        htmlElement.setAttribute('data-bs-theme', savedTheme);
-        actualizarIcono(savedTheme);
+                                        const savedTheme = localStorage.getItem('theme') || 'light';
+                                        htmlElement.setAttribute('data-bs-theme', savedTheme);
+                                        actualizarIcono(savedTheme);
 
-        themeToggleBtn.addEventListener('click', () => {
-            const currentTheme = htmlElement.getAttribute('data-bs-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                                        themeToggleBtn.addEventListener('click', () => {
+                                            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                                            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-            htmlElement.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            actualizarIcono(newTheme);
-        });
+                                            htmlElement.setAttribute('data-bs-theme', newTheme);
+                                            localStorage.setItem('theme', newTheme);
+                                            actualizarIcono(newTheme);
+                                        });
 
-        function actualizarIcono(theme) {
-            if (theme === 'dark') {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-            } else {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-            }
-        }
+                                        function actualizarIcono(theme) {
+                                            if (theme === 'dark') {
+                                                themeIcon.classList.remove('fa-moon');
+                                                themeIcon.classList.add('fa-sun');
+                                            } else {
+                                                themeIcon.classList.remove('fa-sun');
+                                                themeIcon.classList.add('fa-moon');
+                                            }
+                                        }
     </script>
 </body>
 </html>

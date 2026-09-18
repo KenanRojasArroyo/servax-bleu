@@ -1,0 +1,53 @@
+@model Servax_bleu_unificacion.Models.Alimento
+@{
+    ViewBag.Title = "Editar Alimento";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-pen text-primary me-2"></i>Editar Alimento</h4>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Edit", "Alimento", new { id = Model.IdAlimento }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.IdAlimento)
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre *</label>
+                    @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Tipo de Alimento</label>
+                        @Html.TextBoxFor(m => m.TipoAlimento, new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Unidad de Medida</label>
+                        @Html.TextBoxFor(m => m.UnidadMedida, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Stock Actual</label>
+                        @Html.TextBoxFor(m => m.StockActual, new { @class = "form-control", type = "number", step = "0.01" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Costo Unitario</label>
+                        @Html.TextBoxFor(m => m.CostoUnitario, new { @class = "form-control", type = "number", step = "0.01" })
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Observaciones</label>
+                    @Html.TextAreaFor(m => m.Observaciones, new { @class = "form-control", rows = 2 })
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

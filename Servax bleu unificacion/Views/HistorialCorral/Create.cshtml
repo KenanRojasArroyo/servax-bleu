@@ -1,0 +1,56 @@
+@model Servax_bleu_unificacion.Models.HistorialCorral
+@{
+    ViewBag.Title = "Nuevo Snapshot de Historial";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-plus text-primary me-2"></i>Nuevo Snapshot de Historial</h4>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Create", "HistorialCorral", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Corral *</label>
+                        @Html.DropDownListFor(m => m.IdCorral, (List<SelectListItem>)ViewBag.Corrales, "-- Selecciona --", new { @class = "form-select" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fecha *</label>
+                        @Html.TextBoxFor(m => m.Fecha, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Cantidad de Peces</label>
+                        @Html.TextBoxFor(m => m.CantidadPeces, new { @class = "form-control", type = "number" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Estado General</label>
+                        @Html.TextBoxFor(m => m.EstadoGeneral, new { @class = "form-control", placeholder = "Ej. Saludable, Con observaciones..." })
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Resumen de Calidad de Agua</label>
+                    @Html.TextAreaFor(m => m.ResumenCalidadAgua, new { @class = "form-control", rows = 2 })
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Resumen de Nutrientes</label>
+                    @Html.TextAreaFor(m => m.ResumenNutrientes, new { @class = "form-control", rows = 2 })
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Observaciones</label>
+                    @Html.TextAreaFor(m => m.Observaciones, new { @class = "form-control", rows = 2 })
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

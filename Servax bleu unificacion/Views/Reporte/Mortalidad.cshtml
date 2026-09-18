@@ -1,0 +1,69 @@
+@model List<Servax_bleu_unificacion.Controllers.ReporteMortalidadItem>
+@{
+    ViewBag.Title = "Reporte de Mortalidad";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h4 class="fw-bold mb-0"><i class="fa-solid fa-chart-column text-primary me-2"></i>Reporte: Alimentaci&oacute;n vs. Mortalidad</h4>
+        <a href="@Url.Action("MortalidadCsv", new { idCorral = ViewBag.IdCorralFiltro, desde = ViewBag.Desde, hasta = ViewBag.Hasta })" class="btn btn-outline-success shadow-sm">
+            <i class="fa-solid fa-file-csv me-1"></i> Exportar CSV
+        </a>
+    </div>
+
+    <form method="get" class="row g-2 mb-4">
+        <div class="col-auto">
+            <select name="idCorral" class="form-select">
+                <option value="">Todos los corrales</option>
+                @foreach (var c in (List<SelectListItem>)ViewBag.Corrales)
+                {
+                    <option value="@c.Value" selected="@(ViewBag.IdCorralFiltro != null && ViewBag.IdCorralFiltro.ToString() == c.Value)">@c.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="date" name="desde" class="form-control" value="@(ViewBag.Desde != null ? ((DateTime)ViewBag.Desde).ToString("yyyy-MM-dd") : "")" placeholder="Desde" />
+        </div>
+        <div class="col-auto">
+            <input type="date" name="hasta" class="form-control" value="@(ViewBag.Hasta != null ? ((DateTime)ViewBag.Hasta).ToString("yyyy-MM-dd") : "")" placeholder="Hasta" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-filter me-1"></i>Filtrar</button>
+        </div>
+    </form>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Corral</th>
+                        <th>Mes</th>
+                        <th>Alimento total (kg)</th>
+                        <th>Mortalidad total</th>
+                        <th>Kg por muerte</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="@(item.TotalMortalidad > 0 ? "table-danger" : "")">
+                                <td class="fw-semibold">@item.NombreCorral</td>
+                                <td>@item.Mes.ToString("MMMM yyyy")</td>
+                                <td>@item.TotalAlimentoKg.ToString("N2")</td>
+                                <td>@item.TotalMortalidad</td>
+                                <td>@(item.TotalMortalidad > 0 ? (item.TotalAlimentoKg / item.TotalMortalidad).ToString("N2") : "-")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="text-center text-muted py-4">No hay datos de alimentaci&oacute;n / mortalidad en el rango seleccionado.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

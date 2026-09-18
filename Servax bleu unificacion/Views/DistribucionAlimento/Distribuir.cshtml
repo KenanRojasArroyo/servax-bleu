@@ -1,0 +1,94 @@
+@using System.Linq
+@{
+    ViewBag.Title = "Distribuir Carnada";
+    var barcos = (List<Servax_bleu_unificacion.Controllers.BarcoResumen>)ViewBag.BarcosActivos;
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-scale-balanced text-primary me-2"></i>Distribuir Carnada entre Barcos</h4>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+<div class="alert alert-info small">
+    <i class="fa-solid fa-circle-info me-1"></i>
+    El sistema reparte la cantidad total <strong>proporcionalmente a la capacidad (toneladas) de cada barco activo</strong>.
+    Es una f&oacute;rmula placeholder mientras el cliente confirma la regla real de negocio.
+</div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("Distribuir", "DistribucionAlimento", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Corral destino *</label>
+                            <select name="idCorral" class="form-select" required>
+                                <option value="">-- Selecciona --</option>
+                                @foreach (var c in (List<SelectListItem>)ViewBag.Corrales)
+                                {
+                                    <option value="@c.Value">@c.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Alimento / Carnada *</label>
+                            <select name="idAlimento" class="form-select" required>
+                                <option value="">-- Selecciona --</option>
+                                @foreach (var a in (List<SelectListItem>)ViewBag.Alimentos)
+                                {
+                                    <option value="@a.Value">@a.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Cantidad total (toneladas) *</label>
+                                <input type="number" name="cantidadTotalToneladas" step="0.01" min="0.01" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha *</label>
+                                <input type="date" name="fecha" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary shadow-sm">
+                            <i class="fa-solid fa-scale-balanced me-1"></i> Calcular y Registrar Distribuci&oacute;n
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">
+                    <i class="fa-solid fa-ship me-1"></i> Barcos activos que participar&aacute;n
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (barcos != null && barcos.Count > 0)
+                    {
+                        decimal capacidadTotal = barcos.Sum(b => b.Capacidad);
+                        foreach (var b in barcos)
+                        {
+                            decimal porcentaje = capacidadTotal > 0 ? (b.Capacidad / capacidadTotal) * 100 : 0;
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @b.Nombre <span class="text-muted small">(@b.Capacidad ton) &middot; @porcentaje.ToString("N1")%</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item text-muted">No hay barcos activos registrados.</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
