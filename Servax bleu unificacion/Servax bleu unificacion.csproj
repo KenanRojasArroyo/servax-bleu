@@ -294,6 +294,7 @@
     <Content Include="Docs\ERD_ServaxBleu.md" />
     <Content Include="Docs\ERD_ServaxBleu.drawio" />
     <Content Include="Docs\Fase1_Navegacion_y_Metadatos.md" />
+    <Content Include="Docs\Fase0_Desing_Space_Exploration.md" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\dashboard-charts.js" />
     <Content Include="Scripts\empathy-map-engine.js" />

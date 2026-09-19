@@ -122,6 +122,7 @@
                             <li><a class="dropdown-item" href="@Url.Action("Index", "InventarioPez")"><i class="fa-solid fa-boxes-stacked me-2 opacity-75"></i>Inventario de Peces</a></li>
                             <li><a class="dropdown-item" href="@Url.Action("Index", "MuestreoAgua")"><i class="fa-solid fa-vial me-2 opacity-75"></i>Muestreos de Agua</a></li>
                             <li><a class="dropdown-item" href="@Url.Action("Index", "CrecimientoAnual")"><i class="fa-solid fa-chart-line me-2 opacity-75"></i>Crecimiento Anual</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "HistorialCorral")"><i class="fa-solid fa-clock-rotate-left me-2 opacity-75"></i>Historial de Corrales</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -130,8 +131,13 @@
                             <span>Alimentación y Barcos</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navAlimentacionDropdown">
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Barco")"><i class="fa-solid fa-anchor me-2 opacity-75"></i>Barcos</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "Alimento")"><i class="fa-solid fa-drumstick-bite me-2 opacity-75"></i>Alimentos</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "RegistroAlimentacion")"><i class="fa-solid fa-clipboard-list me-2 opacity-75"></i>Registro de Alimentación</a></li>
                             <li><a class="dropdown-item" href="@Url.Action("Index", "DistribucionAlimento")"><i class="fa-solid fa-scale-balanced me-2 opacity-75"></i>Distribución de Carnada</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="@Url.Action("Mortalidad", "Reporte")"><i class="fa-solid fa-chart-column me-2 opacity-75"></i>Reporte de Mortalidad</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Carnada", "Reporte")"><i class="fa-solid fa-fish-fins me-2 opacity-75"></i>Reporte de Carnada</a></li>
                         </ul>
                     </li>
                 </ul>
