@@ -1,0 +1,2936 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Servax Bleu | Operaciones de acuicultura</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: [
+              'Inter',
+              'ui-sans-serif',
+              'system-ui',
+              '-apple-system',
+              'BlinkMacSystemFont',
+              'Segoe UI',
+              'sans-serif'
+            ]
+          },
+          colors: {
+            ocean: {
+              50: '#effaff',
+              100: '#dff5fc',
+              200: '#b9e9f7',
+              300: '#7dd5eb',
+              400: '#38b8d8',
+              500: '#1595bb',
+              600: '#087b9e',
+              700: '#08637f',
+              800: '#0a5066',
+              900: '#0a4355',
+              950: '#062b38'
+            },
+            navy: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#070d18'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* =========================================================
+       DESIGN SYSTEM (Fer modificaciones pendientes y asi ok)
+    ========================================================= */
+
+    :root {
+      --bg: #f3f7fa;
+      --bg-secondary: #eaf1f5;
+      --surface: rgba(255, 255, 255, .78);
+      --surface-solid: #ffffff;
+      --surface-soft: rgba(241, 245, 249, .72);
+      --surface-hover: rgba(255, 255, 255, .95);
+
+      --border: rgba(148, 163, 184, .28);
+      --border-strong: rgba(8, 123, 158, .35);
+
+      --text: #0f172a;
+      --text-secondary: #334155;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+
+      --navy: #0b2034;
+      --ocean: #087b9e;
+      --ocean-light: #1595bb;
+
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+
+      --shadow:
+        0 18px 50px -28px rgba(15, 23, 42, .28);
+
+      --shadow-hover:
+        0 25px 60px -28px rgba(8, 123, 158, .30);
+
+      --radius: 18px;
+
+      --header:
+        rgba(248, 250, 252, .82);
+
+      --grid-line:
+        rgba(8, 123, 158, .045);
+    }
+
+    html.dark {
+      --bg: #07111e;
+      --bg-secondary: #0a1727;
+
+      --surface: rgba(13, 28, 46, .76);
+      --surface-solid: #0d1c2e;
+      --surface-soft: rgba(8, 21, 36, .68);
+      --surface-hover: rgba(17, 37, 59, .92);
+
+      --border: rgba(148, 163, 184, .13);
+      --border-strong: rgba(56, 189, 248, .30);
+
+      --text: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --muted: #94a3b8;
+      --subtle: #64748b;
+
+      --navy: #07111e;
+      --ocean: #38b8d8;
+      --ocean-light: #7dd5eb;
+
+      --shadow:
+        0 25px 70px -30px rgba(0, 0, 0, .65);
+
+      --shadow-hover:
+        0 30px 80px -30px rgba(8, 123, 158, .30);
+
+      --header:
+        rgba(7, 17, 30, .82);
+
+      --grid-line:
+        rgba(56, 189, 248, .035);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+
+      background:
+        radial-gradient(circle at 5% 0%,
+          rgba(21, 149, 187, .08),
+          transparent 32%),
+        radial-gradient(circle at 100% 100%,
+          rgba(8, 123, 158, .06),
+          transparent 30%),
+        linear-gradient(135deg,
+          var(--bg),
+          var(--bg-secondary));
+
+      background-attachment: fixed;
+
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+
+      transition:
+        background .3s ease,
+        color .3s ease;
+    }
+
+    /* Technical grid */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+
+      background-image:
+        linear-gradient(var(--grid-line) 1px,
+          transparent 1px),
+        linear-gradient(90deg,
+          var(--grid-line) 1px,
+          transparent 1px);
+
+      background-size: 48px 48px;
+
+      mask-image:
+        linear-gradient(to bottom,
+          rgba(0, 0, 0, .65),
+          transparent 70%);
+    }
+
+    ::selection {
+      background: #1595bb;
+      color: white;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 999px;
+    }
+
+    html.dark ::-webkit-scrollbar-thumb {
+      background: #29445f;
+    }
+
+    /* =========================================================
+       GLASS
+    ========================================================= */
+
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--border);
+
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+
+      box-shadow: var(--shadow);
+
+      transition:
+        border-color .22s ease,
+        box-shadow .22s ease,
+        transform .22s ease,
+        background .22s ease;
+    }
+
+    .glass:hover {
+      border-color: var(--border-strong);
+    }
+
+    .glass-solid {
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .app-header {
+      background: var(--header);
+      border-bottom: 1px solid var(--border);
+
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .brand-mark {
+      position: relative;
+      overflow: hidden;
+
+      background:
+        linear-gradient(145deg,
+          #0b263b,
+          #087b9e);
+
+      box-shadow:
+        0 10px 30px rgba(8, 123, 158, .25);
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 35px;
+      height: 35px;
+
+      border-radius: 50%;
+
+      background: rgba(255, 255, 255, .12);
+
+      top: -15px;
+      right: -10px;
+    }
+
+    /* =========================================================
+       MODULE NAV
+    ========================================================= */
+
+    .module-nav {
+      background: rgba(148, 163, 184, .08);
+      border: 1px solid var(--border);
+    }
+
+    .module-button {
+      position: relative;
+
+      color: var(--muted);
+
+      transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+    }
+
+    .module-button:hover {
+      color: var(--text);
+      background: rgba(148, 163, 184, .08);
+    }
+
+    .module-button.active {
+      color: var(--text);
+      background: var(--surface-solid);
+
+      box-shadow:
+        0 7px 20px -12px rgba(15, 23, 42, .45);
+    }
+
+    .module-button.active::before {
+      content: "";
+
+      position: absolute;
+
+      left: 9px;
+      right: 9px;
+      bottom: 3px;
+
+      height: 2px;
+
+      border-radius: 999px;
+
+      background:
+        linear-gradient(90deg,
+          transparent,
+          var(--ocean),
+          transparent);
+    }
+
+    /* =========================================================
+       STATUS
+    ========================================================= */
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: #10b981;
+
+      box-shadow:
+        0 0 0 4px rgba(16, 185, 129, .08);
+
+      animation:
+        statusPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+
+      0%,
+      100% {
+        box-shadow:
+          0 0 0 3px rgba(16, 185, 129, .07);
+      }
+
+      50% {
+        box-shadow:
+          0 0 0 6px rgba(16, 185, 129, .02);
+      }
+    }
+
+    /* =========================================================
+       TYPOGRAPHY
+    ========================================================= */
+
+    .eyebrow {
+      color: var(--ocean);
+
+      font-size: 10px;
+      font-weight: 800;
+
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .page-title {
+      font-size: clamp(20px, 2vw, 28px);
+      line-height: 1.15;
+
+      letter-spacing: -.035em;
+
+      font-weight: 750;
+    }
+
+    .page-description {
+      color: var(--muted);
+
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* =========================================================
+       BUTTONS
+    ========================================================= */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      border-radius: 12px;
+
+      font-size: 11px;
+      font-weight: 700;
+
+      transition:
+        transform .18s ease,
+        background .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      color: var(--text-secondary);
+
+      background: var(--surface-soft);
+
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-hover);
+    }
+
+    .btn-primary {
+      color: white;
+
+      background:
+        linear-gradient(135deg,
+          #087b9e,
+          #0a5066);
+
+      box-shadow:
+        0 10px 24px -15px rgba(8, 123, 158, .75);
+    }
+
+    .btn-primary:hover {
+      box-shadow:
+        0 14px 30px -15px rgba(8, 123, 158, .9);
+    }
+
+    /* =========================================================
+       METRICS
+    ========================================================= */
+
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: "";
+
+      position: absolute;
+
+      right: -30px;
+      bottom: -35px;
+
+      width: 100px;
+      height: 100px;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(circle,
+          rgba(21, 149, 187, .12),
+          transparent 65%);
+
+      pointer-events: none;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      line-height: 1;
+
+      font-weight: 750;
+
+      letter-spacing: -.04em;
+    }
+
+    .metric-label {
+      color: var(--muted);
+
+      font-size: 10px;
+      font-weight: 700;
+
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    /* =========================================================
+       INPUTS
+    ========================================================= */
+
+    .input {
+      width: 100%;
+
+      color: var(--text);
+
+      background: var(--surface-soft);
+
+      border: 1px solid var(--border);
+
+      border-radius: 12px;
+
+      transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background .18s ease;
+    }
+
+    .input:hover {
+      border-color: rgba(8, 123, 158, .25);
+    }
+
+    .input:focus {
+      outline: none;
+
+      border-color: var(--ocean);
+
+      box-shadow:
+        0 0 0 3px rgba(8, 123, 158, .10);
+    }
+
+    /* =========================================================
+       RANGE
+    ========================================================= */
+
+    input[type="range"] {
+      appearance: none;
+      width: 100%;
+      height: 4px;
+
+      background:
+        linear-gradient(90deg,
+          var(--ocean),
+          rgba(148, 163, 184, .25));
+
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+
+      width: 17px;
+      height: 17px;
+
+      border-radius: 50%;
+
+      background: var(--surface-solid);
+
+      border: 3px solid var(--ocean);
+
+      box-shadow:
+        0 4px 14px rgba(8, 123, 158, .28);
+    }
+
+    /* =========================================================
+       SEGMENTS
+    ========================================================= */
+
+    .segment {
+      position: relative;
+
+      padding: 15px;
+
+      border-radius: 14px;
+
+      border: 1px solid var(--border);
+
+      background: var(--surface-soft);
+
+      transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+    }
+
+    .segment:hover {
+      transform: translateX(2px);
+      border-color: var(--border-strong);
+      background: var(--surface-hover);
+    }
+
+    .segment-bar {
+      height: 3px;
+      border-radius: 999px;
+
+      background: var(--ocean);
+
+      transition: width .35s ease;
+    }
+
+    /* =========================================================
+       CHART
+    ========================================================= */
+
+    .chart-container {
+      position: relative;
+
+      min-height: 355px;
+    }
+
+    .chart-center {
+      position: absolute;
+
+      top: 50%;
+      left: 50%;
+
+      transform: translate(-50%, -50%);
+
+      text-align: center;
+
+      pointer-events: none;
+    }
+
+    .chart-center-number {
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -.05em;
+    }
+
+    .chart-center-label {
+      color: var(--muted);
+
+      font-size: 9px;
+      font-weight: 700;
+
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    /* =========================================================
+       UX PANEL
+    ========================================================= */
+
+    .ux-panel {
+      position: relative;
+
+      overflow: hidden;
+
+      border: 1px solid var(--border);
+
+      background: var(--surface-soft);
+
+      border-radius: 16px;
+    }
+
+    .ux-panel::before {
+      content: "";
+
+      position: absolute;
+
+      left: 0;
+      top: 0;
+      bottom: 0;
+
+      width: 3px;
+
+      background:
+        linear-gradient(to bottom,
+          var(--ocean),
+          transparent);
+    }
+
+    /* =========================================================
+       TRACEABILITY
+    ========================================================= */
+
+    .trace-card {
+      position: relative;
+
+      overflow: hidden;
+
+      background: var(--surface);
+
+      border: 1px solid var(--border);
+
+      border-radius: 17px;
+
+      transition:
+        border-color .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .trace-card:hover {
+      transform: translateY(-2px);
+
+      border-color: var(--border-strong);
+
+      box-shadow: var(--shadow-hover);
+    }
+
+    .trace-node {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      width: 30px;
+      height: 30px;
+
+      flex-shrink: 0;
+
+      border-radius: 10px;
+
+      color: var(--ocean);
+
+      background: rgba(21, 149, 187, .08);
+
+      border: 1px solid rgba(21, 149, 187, .16);
+    }
+
+    .trace-line {
+      position: absolute;
+
+      top: 29px;
+      bottom: 29px;
+
+      width: 1px;
+
+      background:
+        linear-gradient(to bottom,
+          rgba(21, 149, 187, .45),
+          rgba(21, 149, 187, .05));
+    }
+
+    .trace-stage {
+      min-width: 0;
+    }
+
+    .trace-stage-label {
+      color: var(--subtle);
+
+      font-size: 9px;
+      font-weight: 800;
+
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .trace-stage-content {
+      color: var(--text-secondary);
+
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    /* =========================================================
+       PRIORITY
+    ========================================================= */
+
+    .priority-critical {
+      color: #dc2626;
+      background: rgba(220, 38, 38, .08);
+      border-color: rgba(220, 38, 38, .18);
+    }
+
+    .priority-high {
+      color: #d97706;
+      background: rgba(217, 119, 6, .08);
+      border-color: rgba(217, 119, 6, .18);
+    }
+
+    .priority-normal {
+      color: var(--ocean);
+      background: rgba(21, 149, 187, .08);
+      border-color: rgba(21, 149, 187, .18);
+    }
+
+    /* =========================================================
+       TAB ANIMATION
+    ========================================================= */
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+
+      animation:
+        pageEnter .32s ease both;
+    }
+
+    @keyframes pageEnter {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 768px) {
+      .chart-container {
+        min-height: 300px;
+      }
+
+      .trace-line {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =======================================================
+       APPLICATION HEADER
+  ======================================================== -->
+
+  <header class="app-header sticky top-0 z-50">
+
+    <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="min-h-[76px] flex items-center justify-between gap-5">
+
+        <!-- BRAND -->
+
+        <div class="flex items-center gap-3 min-w-0">
+
+          <div class="brand-mark w-11 h-11 rounded-2xl flex items-center justify-center shrink-0">
+
+            <svg class="w-6 h-6 text-white relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7">
+              <path d="M3 17.5c2.5-2.5 5.5-2.5 8 0s5.5 2.5 8 0" />
+              <path d="M3 13.5c2.5-2.5 5.5-2.5 8 0s5.5 2.5 8 0" />
+              <path d="M7 7h10" />
+              <path d="M12 4v3" />
+            </svg>
+
+          </div>
+
+          <div class="min-w-0">
+
+            <div class="flex items-center gap-2 flex-wrap">
+
+              <h1 class="text-sm sm:text-base font-extrabold tracking-[.16em] text-slate-900 dark:text-white">
+                SERVAX BLEU
+              </h1>
+
+              <span
+                class="px-2 py-0.5 rounded-md text-[8px] font-bold tracking-wider uppercase text-ocean-700 dark:text-ocean-300 bg-ocean-500/10 border border-ocean-500/15">
+                Empresarial
+              </span>
+
+            </div>
+
+            <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              Suite de Operaciones e Ingeniería Acuícola
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="module-nav rounded-xl p-1 hidden md:flex items-center">
+
+          <button id="moduleI5" class="module-button active relative px-4 py-2.5 rounded-lg flex items-center gap-2"
+            onclick="switchTab('tabInterfaz5', this)">
+
+            <svg class="w-4 h-4 text-ocean-600 dark:text-ocean-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="1.8">
+              <path d="M4 19V5" />
+              <path d="M4 19h16" />
+              <path d="M8 16v-4" />
+              <path d="M12 16V8" />
+              <path d="M16 16V6" />
+              <path d="M20 16V10" />
+            </svg>
+
+            <div class="text-left">
+              <div class="text-[10px] font-bold">DINÁMICA DE ROPER</div>
+              <div class="text-[8px] text-slate-400 mt-0.5">Segmentación UX</div>
+            </div>
+
+          </button>
+
+
+          <button id="moduleI6" class="module-button relative px-4 py-2.5 rounded-lg flex items-center gap-2"
+            onclick="switchTab('tabInterfaz6', this)">
+
+            <svg class="w-4 h-4 text-ocean-600 dark:text-ocean-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="1.8">
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <path d="M8 8h3" />
+              <path d="M8 12h8" />
+              <path d="M8 16h5" />
+            </svg>
+
+            <div class="text-left">
+              <div class="text-[10px] font-bold">TRAZABILIDAD</div>
+              <div class="text-[8px] text-slate-400 mt-0.5">Requerimientos</div>
+            </div>
+
+          </button>
+
+        </nav>
+
+
+        <!-- CONTROLS -->
+
+        <div class="flex items-center gap-2">
+
+          <div
+            class="hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+
+            <span class="status-dot"></span>
+
+            <span class="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 tracking-wider uppercase">
+              Operativo
+            </span>
+
+          </div>
+
+
+          <button onclick="toggleTheme()"
+            class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-500/5 border border-slate-500/10 hover:border-ocean-500/30 transition"
+            title="Cambiar tema">
+
+            <svg id="iconSun" class="hidden dark:block w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" />
+              <path d="M12 20v2" />
+              <path d="M4.93 4.93l1.42 1.42" />
+              <path d="M17.65 17.65l1.42 1.42" />
+              <path d="M2 12h2" />
+              <path d="M20 12h2" />
+              <path d="M4.93 19.07l1.42-1.42" />
+              <path d="M17.65 6.35l1.42-1.42" />
+            </svg>
+
+            <svg id="iconMoon" class="block dark:hidden w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="1.8">
+              <path d="M20.5 15.2A8.5 8.5 0 018.8 3.5 8.8 8.8 0 1020.5 15.2z" />
+            </svg>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- MOBILE NAV -->
+
+      <nav class="md:hidden flex gap-1 pb-3 overflow-x-auto">
+
+        <button class="module-button active px-4 py-2.5 rounded-lg whitespace-nowrap"
+          onclick="switchTab('tabInterfaz5', this)">
+          <span class="text-[10px] font-bold">DINÁMICA DE ROPER</span>
+        </button>
+
+        <button class="module-button px-4 py-2.5 rounded-lg whitespace-nowrap"
+          onclick="switchTab('tabInterfaz6', this)">
+          <span class="text-[10px] font-bold">TRAZABILIDAD</span>
+        </button>
+
+      </nav>
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       SYSTEM STATUS
+  ======================================================== -->
+
+  <div class="border-b border-slate-500/10 bg-slate-500/[.025]">
+
+    <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="min-h-[42px] flex items-center justify-between gap-5 overflow-x-auto">
+
+        <div class="flex items-center gap-5 whitespace-nowrap">
+
+          <div class="flex items-center gap-2">
+
+            <span class="status-dot"></span>
+
+            <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Sistema
+            </span>
+
+            <span class="text-[10px] font-semibold text-slate-700 dark:text-slate-300">
+              Operativo
+            </span>
+
+          </div>
+
+          <div class="hidden sm:flex items-center gap-2 border-l border-slate-500/10 pl-5">
+
+            <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+              Nodo
+            </span>
+
+            <span class="text-[10px] font-medium text-slate-600 dark:text-slate-300">
+              Ensenada #04
+            </span>
+
+          </div>
+
+          <div class="hidden lg:flex items-center gap-2 border-l border-slate-500/10 pl-5">
+
+
+          </div>
+
+        </div>
+
+
+        <div class="hidden md:flex items-center gap-3 whitespace-nowrap">
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       MAIN
+  ======================================================== -->
+
+  <main class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-7 w-full">
+
+
+    <!-- =====================================================
+         INTERFAZ 5
+    ====================================================== -->
+
+    <section id="tabInterfaz5" class="tab-content active">
+
+
+      <!-- HERO -->
+
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
+
+        <div>
+
+
+
+          <h2 class="page-title">
+            Dinamograma Roper
+          </h2>
+
+          <p class="page-description mt-2 max-w-2xl">
+            Segmentación de usuarios y ponderación de requisitos UX
+            para la plataforma operativa de Servax Bleu.
+          </p>
+
+        </div>
+
+
+        <div class="flex items-center gap-2">
+
+          <button class="btn btn-secondary px-3.5 py-2.5" onclick="exportarJSON_I5()">
+            <svg class="w-3.5 h-3.5 text-ocean-600 dark:text-ocean-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="1.8">
+              <path d="M12 3v12" />
+              <path d="M8 11l4 4 4-4" />
+              <path d="M5 21h14" />
+            </svg>
+
+            JSON
+          </button>
+
+
+          <button class="btn btn-primary px-3.5 py-2.5" onclick="exportarCSV_I5()">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 3v12" />
+              <path d="M8 11l4 4 4-4" />
+              <path d="M5 21h14" />
+            </svg>
+
+            Exportar CSV
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- METRICS -->
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+
+        <div class="glass metric-card rounded-2xl p-4">
+
+          <div class="metric-label">
+            Usuarios observados
+          </div>
+
+          <div id="metricTotal" class="metric-value mt-3">
+            25
+          </div>
+
+          <div class="text-[9px] text-slate-400 mt-2">
+            Distribución actual
+          </div>
+
+        </div>
+
+
+        <div class="glass metric-card rounded-2xl p-4">
+
+          <div class="metric-label">
+            Segmento dominante
+          </div>
+
+          <div id="metricDominant" class="text-base font-bold mt-3 truncate">
+            Realistas
+          </div>
+
+          <div id="metricDominantPercent" class="text-[9px] text-ocean-600 dark:text-ocean-400 mt-2 font-semibold">
+            48%
+          </div>
+
+        </div>
+
+
+        <div class="glass metric-card rounded-2xl p-4">
+
+          <div class="metric-label">
+            Cobertura UX
+          </div>
+
+          <div class="metric-value mt-3">
+            100%
+          </div>
+
+          <div class="text-[9px] text-slate-400 mt-2">
+            Requisitos mapeados
+          </div>
+
+        </div>
+
+
+        <div class="glass metric-card rounded-2xl p-4">
+
+          <div class="metric-label">
+            Estado
+          </div>
+
+          <div class="flex items-center gap-2 mt-3">
+
+            <span class="status-dot"></span>
+
+            <span class="text-base font-bold">
+              Operativo
+            </span>
+
+          </div>
+
+          <div class="text-[9px] text-slate-400 mt-2">
+            Motor de análisis activo
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- MAIN ANALYSIS -->
+
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+
+
+        <!-- SEGMENTS -->
+
+        <div class="xl:col-span-5 glass rounded-2xl p-5 sm:p-6">
+
+          <div class="flex items-start justify-between gap-3 mb-5">
+
+            <div>
+
+              <div class="eyebrow mb-1">
+                Segmentación de usuarios
+              </div>
+
+              <h3 class="text-sm font-bold">
+                Distribución de usuarios
+              </h3>
+
+              <p class="text-[10px] text-slate-400 mt-1">
+                Ajusta las cuotas para recalcular la composición.
+              </p>
+
+            </div>
+
+            <div class="w-8 h-8 rounded-xl bg-ocean-500/10 border border-ocean-500/10 flex items-center justify-center">
+
+              <svg class="w-4 h-4 text-ocean-600 dark:text-ocean-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="1.7">
+                <path d="M4 19V5" />
+                <path d="M4 19h16" />
+                <path d="M8 16v-5" />
+                <path d="M12 16V8" />
+                <path d="M16 16V6" />
+              </svg>
+
+            </div>
+
+          </div>
+
+
+          <div class="space-y-3">
+
+
+            <!-- REALISTAS -->
+
+            <div class="segment">
+
+              <div class="flex items-center justify-between gap-3 mb-3">
+
+                <div>
+
+                  <div class="text-[11px] font-bold">
+                    Realistas / Tradicionales
+                  </div>
+
+                  <div class="text-[9px] text-slate-400 mt-0.5">
+                    Seguridad · Control operativo
+                  </div>
+
+                </div>
+
+                <div class="text-right">
+
+                  <input type="number" id="inputRealistas" value="12" min="0" onchange="recalcularI5()"
+                    class="input w-16 px-2 py-1.5 text-center text-xs font-bold">
+
+                </div>
+
+              </div>
+
+              <div class="flex items-center gap-3">
+
+                <div class="flex-1 h-1 bg-slate-500/10 rounded-full overflow-hidden">
+
+                  <div id="barRealistas" class="segment-bar" style="width:48%"></div>
+
+                </div>
+
+                <span id="percentRealistas"
+                  class="text-[9px] font-bold text-ocean-600 dark:text-ocean-400 w-8 text-right">
+                  48%
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- PRAGMATICOS -->
+
+            <div class="segment">
+
+              <div class="flex items-center justify-between gap-3 mb-3">
+
+                <div>
+
+                  <div class="text-[11px] font-bold">
+                    Pragmáticos
+                  </div>
+
+                  <div class="text-[9px] text-slate-400 mt-0.5">
+                    Eficiencia · Carga masiva
+                  </div>
+
+                </div>
+
+                <input type="number" id="inputPragmaticos" value="8" min="0" onchange="recalcularI5()"
+                  class="input w-16 px-2 py-1.5 text-center text-xs font-bold">
+
+              </div>
+
+              <div class="flex items-center gap-3">
+
+                <div class="flex-1 h-1 bg-slate-500/10 rounded-full overflow-hidden">
+
+                  <div id="barPragmaticos" class="segment-bar" style="width:32%"></div>
+
+                </div>
+
+                <span id="percentPragmaticos"
+                  class="text-[9px] font-bold text-ocean-600 dark:text-ocean-400 w-8 text-right">
+                  32%
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- INNOVADORES -->
+
+            <div class="segment">
+
+              <div class="flex items-center justify-between gap-3 mb-3">
+
+                <div>
+
+                  <div class="text-[11px] font-bold">
+                    Innovadores
+                  </div>
+
+                  <div class="text-[9px] text-slate-400 mt-0.5">
+                    IA · Alertas · Automatización
+                  </div>
+
+                </div>
+
+                <input type="number" id="inputInnovadores" value="5" min="0" onchange="recalcularI5()"
+                  class="input w-16 px-2 py-1.5 text-center text-xs font-bold">
+
+              </div>
+
+              <div class="flex items-center gap-3">
+
+                <div class="flex-1 h-1 bg-slate-500/10 rounded-full overflow-hidden">
+
+                  <div id="barInnovadores" class="segment-bar" style="width:20%"></div>
+
+                </div>
+
+                <span id="percentInnovadores"
+                  class="text-[9px] font-bold text-ocean-600 dark:text-ocean-400 w-8 text-right">
+                  20%
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="mt-5 pt-4 border-t border-slate-500/10">
+
+            <div class="flex items-start gap-3">
+
+              <div
+                class="w-7 h-7 rounded-lg bg-slate-500/5 border border-slate-500/10 flex items-center justify-center shrink-0">
+
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  stroke-width="1.7">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 10v6" />
+                  <path d="M12 7h.01" />
+                </svg>
+
+              </div>
+
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                La distribución modifica automáticamente la ponderación relativa
+                del modelo Roper y actualiza la estrategia UX.
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- CHART -->
+
+        <div class="xl:col-span-7 glass rounded-2xl p-5 sm:p-6">
+
+          <div class="flex items-start justify-between gap-3">
+
+            <div>
+
+              <div class="eyebrow mb-1">
+                Análisis Roper
+              </div>
+
+              <h3 class="text-sm font-bold">
+                Mapa de segmentación
+              </h3>
+
+              <p class="text-[10px] text-slate-400 mt-1">
+                Selecciona un segmento para consultar sus requerimientos.
+              </p>
+
+            </div>
+
+            <span
+              class="px-2 py-1 rounded-md bg-ocean-500/5 border border-ocean-500/10 text-[8px] font-bold text-ocean-600 dark:text-ocean-400 uppercase tracking-wider">
+              En vivo
+            </span>
+
+          </div>
+
+
+          <div class="chart-container mt-3">
+
+            <canvas id="chartRoper"></canvas>
+
+            <div class="chart-center">
+
+              <div id="chartTotal" class="chart-center-number">
+                25
+              </div>
+
+              <div class="chart-center-label">
+                Usuarios
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- UX INSIGHT -->
+
+          <div id="drawerUX" class="ux-panel p-4">
+
+            <div class="flex items-center gap-2 mb-3">
+
+              <div class="w-7 h-7 rounded-lg bg-ocean-500/10 flex items-center justify-center">
+
+                <svg class="w-3.5 h-3.5 text-ocean-600 dark:text-ocean-400" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="1.7">
+                  <path d="M9.5 18h5" />
+                  <path d="M10 22h4" />
+                  <path d="M8.5 14.5a6 6 0 117 0c-.9.7-1.5 1.4-1.7 2.5H10.2c-.2-1.1-.8-1.8-1.7-2.5z" />
+                </svg>
+
+              </div>
+
+              <div>
+
+                <div class="eyebrow">
+                  Perspectiva UX
+                </div>
+
+                <div id="drawerSegment" class="text-[11px] font-bold">
+                  Realistas / Tradicionales
+                </div>
+
+              </div>
+
+            </div>
+
+            <div id="drawerContent"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INTERFAZ 6
+    ====================================================== -->
+
+    <section id="tabInterfaz6" class="tab-content">
+
+
+      <!-- HERO -->
+
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
+
+        <div>
+
+          <div class="eyebrow mb-2">
+            Inteligencia de Arquitectura · Módulo 06
+          </div>
+
+          <h2 class="page-title">
+            Trazabilidad
+          </h2>
+
+          <p class="page-description mt-2 max-w-2xl">
+            Mapeo navegable de Perspectiva → Requisito → Decisión,
+            con ponderación dinámica de riesgo.
+          </p>
+
+        </div>
+
+
+        <div class="flex items-center gap-2">
+
+          <button class="btn btn-secondary px-3.5 py-2.5" onclick="exportarJSON_I6()">
+            <svg class="w-3.5 h-3.5 text-ocean-600 dark:text-ocean-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" stroke-width="1.8">
+              <path d="M12 3v12" />
+              <path d="M8 11l4 4 4-4" />
+              <path d="M5 21h14" />
+            </svg>
+
+            JSON
+          </button>
+
+
+          <button class="btn btn-primary px-3.5 py-2.5" onclick="exportarCSV_I6()">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 3v12" />
+              <path d="M8 11l4 4 4-4" />
+              <path d="M5 21h14" />
+            </svg>
+
+            Exportar CSV
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- TOOLBAR -->
+
+      <div class="glass rounded-2xl p-4 mb-5">
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+
+          <!-- RISK -->
+
+          <div>
+
+            <div class="flex items-center justify-between mb-2">
+
+              <div>
+
+                <div class="eyebrow">
+                  Ponderación de riesgo
+                </div>
+
+                <div class="text-[10px] text-slate-400 mt-1">
+                  Ley embebida · Ponderación de riesgo
+                </div>
+
+              </div>
+
+              <span id="valFactor"
+                class="px-2.5 py-1.5 rounded-lg bg-ocean-500/10 border border-ocean-500/15 text-ocean-700 dark:text-ocean-300 text-[10px] font-extrabold">
+                1.0x
+              </span>
+
+            </div>
+
+            <input type="range" id="sliderPonderacion" min="1.0" max="2.5" step="0.1" value="1.0"
+              oninput="recalcularI6()">
+
+            <div class="flex justify-between mt-2 text-[8px] text-slate-400 font-semibold">
+              <span>1.0×</span>
+              <span>1.5×</span>
+              <span>2.0×</span>
+              <span>2.5×</span>
+            </div>
+
+          </div>
+
+
+          <!-- SEARCH -->
+
+          <div>
+
+            <div class="eyebrow mb-2">
+              Buscar en trazabilidad
+            </div>
+
+            <div class="relative">
+
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-4-4" />
+              </svg>
+
+              <input type="text" id="inputSearchI6" class="input pl-10 pr-4 py-2.5 text-[11px]"
+                placeholder="Buscar RF, RNF, perspectiva o decisión..." onkeyup="filtrarI6()">
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- FLOW LEGEND -->
+
+      <div class="hidden md:flex items-center gap-5 px-2 mb-4">
+
+        <div class="flex items-center gap-2">
+
+          <span class="w-2 h-2 rounded-full bg-ocean-500"></span>
+
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+            Perspectiva
+          </span>
+
+        </div>
+
+        <div class="h-px w-8 bg-ocean-500/30"></div>
+
+        <div class="flex items-center gap-2">
+
+          <span class="w-2 h-2 rounded-full bg-ocean-500"></span>
+
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+            Requisito
+          </span>
+
+        </div>
+
+        <div class="h-px w-8 bg-ocean-500/30"></div>
+
+        <div class="flex items-center gap-2">
+
+          <span class="w-2 h-2 rounded-full bg-ocean-500"></span>
+
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+            Decisión
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- TRACEABILITY -->
+
+      <div id="containerTraceability" class="space-y-3"></div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =======================================================
+       FOOTER
+  ======================================================== -->
+
+  <footer class="border-t border-slate-500/10 mt-8">
+
+    <div class="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="min-h-[54px] flex flex-col sm:flex-row items-center justify-between gap-2">
+
+        <div class="text-[9px] text-slate-400">
+          SERVAX BLEU · Suite Empresarial de Operaciones Acuícolas
+        </div>
+
+        <div class="text-[9px] text-slate-400">
+          Grupo 952 · División Marítima Industrial · 2026
+        </div>
+
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =======================================================
+       JAVASCRIPT
+  ======================================================== -->
+
+  <script>
+
+    /* =========================================================
+       THEME
+    ========================================================= */
+
+    function toggleTheme() {
+
+      const html = document.documentElement;
+
+      const isDark =
+        html.classList.contains('dark');
+
+      if (isDark) {
+
+        html.classList.remove('dark');
+        html.classList.add('light');
+
+        localStorage.setItem(
+          'sb_theme',
+          'light'
+        );
+
+      } else {
+
+        html.classList.remove('light');
+        html.classList.add('dark');
+
+        localStorage.setItem(
+          'sb_theme',
+          'dark'
+        );
+
+      }
+
+      updateChartColors();
+
+    }
+
+
+    if (
+      localStorage.getItem('sb_theme') === 'dark'
+    ) {
+
+      document.documentElement.classList.remove('light');
+
+      document.documentElement.classList.add('dark');
+
+    }
+
+
+    /* =========================================================
+       TABS
+    ========================================================= */
+
+    function switchTab(tabId, btn) {
+
+      document
+        .querySelectorAll('.tab-content')
+        .forEach(el => {
+
+          el.classList.remove('active');
+
+        });
+
+
+      document
+        .querySelectorAll('.module-button')
+        .forEach(el => {
+
+          el.classList.remove('active');
+
+        });
+
+
+      const target =
+        document.getElementById(tabId);
+
+      if (target) {
+
+        target.classList.add('active');
+
+      }
+
+
+      if (btn) {
+
+        btn.classList.add('active');
+
+      }
+
+    }
+
+
+    /* =========================================================
+       INTERFAZ 5
+    ========================================================= */
+
+    let chartInstance;
+
+
+    const dataUX = [
+
+      {
+        nombre: "Realistas / Tradicionales",
+
+        reqUX:
+          "Confirmaciones explícitas en dos pasos para prevenir errores en inventario y respaldos visibles.",
+
+        funcionalidad:
+          "RF-05 (Captura simple) y RNF-05 (Seguridad / Respaldos)",
+
+        tono:
+          "Formal, seguro y estructurado"
+      },
+
+      {
+        nombre: "Pragmáticos",
+
+        reqUX:
+          "Atajos de teclado, carga masiva CSV/Excel en un clic y tablas compactas con filtros inmediatos.",
+
+        funcionalidad:
+          "RF-06 (Carga masiva) y RNF-03 (Usabilidad)",
+
+        tono:
+          "Directo, ágil y funcional"
+      },
+
+      {
+        nombre: "Innovadores",
+
+        reqUX:
+          "Consultas en lenguaje natural, evaluación proactiva mediante IA y notificaciones en tiempo real.",
+
+        funcionalidad:
+          "RF-01 (Módulo IA), RF-12 (Alertas) y RNF-01 (Tiempo Real)",
+
+        tono:
+          "Asistido e inteligente"
+      }
+
+    ];
+
+
+    function getI5Values() {
+
+      return [
+
+        parseInt(
+          document.getElementById('inputRealistas').value
+        ) || 0,
+
+        parseInt(
+          document.getElementById('inputPragmaticos').value
+        ) || 0,
+
+        parseInt(
+          document.getElementById('inputInnovadores').value
+        ) || 0
+
+      ];
+
+    }
+
+
+    function getChartColors() {
+
+      const isDark =
+        document.documentElement.classList.contains('dark');
+
+      return {
+
+        text:
+          isDark
+            ? '#94a3b8'
+            : '#475569',
+
+        grid:
+          isDark
+            ? 'rgba(148,163,184,.10)'
+            : 'rgba(15,23,42,.07)',
+
+        border:
+          isDark
+            ? 'rgba(7,17,30,.95)'
+            : 'rgba(255,255,255,.95)'
+
+      };
+
+    }
+
+
+    function initChartI5() {
+
+      const canvas =
+        document.getElementById('chartRoper');
+
+      if (!canvas) return;
+
+
+      const ctx =
+        canvas.getContext('2d');
+
+      const colors =
+        getChartColors();
+
+
+      chartInstance =
+        new Chart(ctx, {
+
+          type: 'doughnut',
+
+          data: {
+
+            labels:
+              dataUX.map(d => d.nombre),
+
+            datasets: [
+
+              {
+
+                data:
+                  getI5Values(),
+
+                backgroundColor: [
+
+                  '#0f2d45',
+                  '#1595bb',
+                  '#36a88a'
+
+                ],
+
+                borderColor:
+                  colors.border,
+
+                borderWidth: 3,
+
+                hoverOffset: 9,
+
+                spacing: 2
+
+              }
+
+            ]
+
+          },
+
+          options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            cutout: '68%',
+
+            animation: {
+
+              duration: 700,
+
+              easing: 'easeOutQuart'
+
+            },
+
+            plugins: {
+
+              legend: {
+
+                position: 'bottom',
+
+                labels: {
+
+                  color:
+                    colors.text,
+
+                  font: {
+
+                    family: 'Inter',
+
+                    size: 10,
+
+                    weight: '600'
+
+                  },
+
+                  padding: 18,
+
+                  usePointStyle: true,
+
+                  pointStyle: 'circle'
+
+                }
+
+              },
+
+              tooltip: {
+
+                backgroundColor:
+                  'rgba(7,17,30,.94)',
+
+                titleFont: {
+
+                  family: 'Inter',
+
+                  size: 11,
+
+                  weight: '700'
+
+                },
+
+                bodyFont: {
+
+                  family: 'Inter',
+
+                  size: 10
+
+                },
+
+                padding: 12,
+
+                cornerRadius: 10,
+
+                displayColors: true,
+
+                callbacks: {
+
+                  label: function (context) {
+
+                    const values =
+                      getI5Values();
+
+                    const total =
+                      values.reduce(
+                        (a, b) => a + b,
+                        0
+                      );
+
+                    const value =
+                      context.raw;
+
+                    const percentage =
+                      total
+                        ? Math.round(
+                          value / total * 100
+                        )
+                        : 0;
+
+                    return ` ${value} usuarios · ${percentage}%`;
+
+                  }
+
+                }
+
+              }
+
+            },
+
+            onClick: function (evt, elements) {
+
+              if (elements.length) {
+
+                mostrarDrawerUX(
+                  elements[0].index
+                );
+
+              }
+
+            }
+
+          }
+
+        });
+
+
+      mostrarDrawerUX(0);
+
+      updateI5Metrics();
+
+    }
+
+
+    function updateChartColors() {
+
+      if (!chartInstance) return;
+
+
+      const colors =
+        getChartColors();
+
+
+      chartInstance.options.plugins.legend.labels.color =
+        colors.text;
+
+      chartInstance.data.datasets[0].borderColor =
+        colors.border;
+
+      chartInstance.update();
+
+    }
+
+
+    function updateI5Metrics() {
+
+      const values =
+        getI5Values();
+
+      const total =
+        values.reduce(
+          (a, b) => a + b,
+          0
+        );
+
+
+      const percentages =
+        values.map(value =>
+          total
+            ? Math.round(value / total * 100)
+            : 0
+        );
+
+
+      document.getElementById('metricTotal').innerText =
+        total;
+
+      document.getElementById('chartTotal').innerText =
+        total;
+
+
+      document.getElementById('percentRealistas').innerText =
+        percentages[0] + '%';
+
+      document.getElementById('percentPragmaticos').innerText =
+        percentages[1] + '%';
+
+      document.getElementById('percentInnovadores').innerText =
+        percentages[2] + '%';
+
+
+      document.getElementById('barRealistas').style.width =
+        percentages[0] + '%';
+
+      document.getElementById('barPragmaticos').style.width =
+        percentages[1] + '%';
+
+      document.getElementById('barInnovadores').style.width =
+        percentages[2] + '%';
+
+
+      const max =
+        Math.max(...values);
+
+      const index =
+        values.indexOf(max);
+
+
+      const names = [
+        'Realistas',
+        'Pragmáticos',
+        'Innovadores'
+      ];
+
+
+      document.getElementById('metricDominant').innerText =
+        names[index] || '—';
+
+      document.getElementById('metricDominantPercent').innerText =
+        (percentages[index] || 0) + '%';
+
+    }
+
+
+    function recalcularI5() {
+
+      const values =
+        getI5Values();
+
+
+      if (chartInstance) {
+
+        chartInstance.data.datasets[0].data =
+          values;
+
+        chartInstance.update();
+
+      }
+
+
+      updateI5Metrics();
+
+    }
+
+
+    function mostrarDrawerUX(index) {
+
+      const item =
+        dataUX[index];
+
+      if (!item) return;
+
+
+      document.getElementById(
+        'drawerSegment'
+      ).innerText =
+        item.nombre;
+
+
+      document.getElementById(
+        'drawerContent'
+      ).innerHTML = `
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <div>
+
+            <div class="trace-stage-label mb-1.5">
+              Requisito UX
+            </div>
+
+            <p class="trace-stage-content">
+              ${item.reqUX}
+            </p>
+
+          </div>
+
+
+          <div>
+
+            <div class="trace-stage-label mb-1.5">
+              Requisito funcional
+            </div>
+
+            <p class="trace-stage-content">
+              ${item.funcionalidad}
+            </p>
+
+          </div>
+
+
+          <div>
+
+            <div class="trace-stage-label mb-1.5">
+              Tono del sistema
+            </div>
+
+            <p class="trace-stage-content">
+              ${item.tono}
+            </p>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }
+
+
+    function exportarJSON_I5() {
+
+      const values =
+        getI5Values();
+
+
+      const payload = {
+
+        proyecto:
+          "Servax Bleu",
+
+        interfaz:
+          "Interfaz 5 - Roper Dynagram",
+
+        fecha:
+          new Date().toISOString(),
+
+        segmentos:
+          dataUX.map(
+            (s, i) => ({
+
+              ...s,
+
+              cuota:
+                values[i]
+
+            })
+          )
+
+      };
+
+
+      downloadFile(
+
+        JSON.stringify(
+          payload,
+          null,
+          2
+        ),
+
+        'Roper_ServaxBleu.json',
+
+        'application/json'
+
+      );
+
+    }
+
+
+    function csvEscape(value) {
+
+      return `"${String(value)
+        .replace(/"/g, '""')}"`;
+
+    }
+
+
+    function exportarCSV_I5() {
+
+      const values =
+        getI5Values();
+
+
+      let csv =
+        'Segmento,Cuota,RequisitoUX,Funcionalidad,Tono\n';
+
+
+      dataUX.forEach(
+        (s, i) => {
+
+          csv += [
+
+            csvEscape(s.nombre),
+
+            values[i],
+
+            csvEscape(s.reqUX),
+
+            csvEscape(s.funcionalidad),
+
+            csvEscape(s.tono)
+
+          ].join(',') + '\n';
+
+        }
+      );
+
+
+      downloadFile(
+
+        csv,
+
+        'Roper_ServaxBleu.csv',
+
+        'text/csv'
+
+      );
+
+    }
+
+
+    /* =========================================================
+       INTERFAZ 6
+    ========================================================= */
+
+    const datasetTrazabilidad = [
+
+      {
+
+        id: "INS-01",
+
+        insight:
+          "Captura manual en Excel genera lentitud y pérdida histórica de datos de mortalidad.",
+
+        impactoBase: 9,
+
+        requisito:
+          "RF-05, RF-06, RF-07, RNF-03 (Digitalización y Carga Masiva CSV/Excel)",
+
+        decision:
+          "Parser en frontend/backend para archivos .xlsx/.csv con validaciones automáticas y vista previa en pantalla."
+
+      },
+
+
+      {
+
+        id: "INS-02",
+
+        insight:
+          "Riesgo de mortandad por cambios drásticos en calidad de agua sin alertas inmediatas.",
+
+        impactoBase: 10,
+
+        requisito:
+          "RF-01, RF-02, RF-12, RNF-01 (Módulo IA y Notificaciones por Correo)",
+
+        decision:
+          "Evaluación en background vía Ollama (qwen2.5-coder) enviando correos SMTP si Oxígeno < 5.0 mg/L."
+
+      },
+
+
+      {
+
+        id: "INS-03",
+
+        insight:
+          "Ineficiencia en reparto de carnada por falta de cálculo automatizado según capacidad del barco.",
+
+        impactoBase: 8,
+
+        requisito:
+          "RF-08, RF-09 (Fórmula de Carnada y Recálculo por Embarcación)",
+
+        decision:
+          "Algoritmo en backend que redistribuye el tonelaje proporcionalmente según CapacidadToneladas del barco."
+
+      },
+
+
+      {
+
+        id: "INS-04",
+
+        insight:
+          "Falta de visibilidad histórica sobre curvas de crecimiento e inventario por corral.",
+
+        impactoBase: 8,
+
+        requisito:
+          "RF-03, RF-04, RF-10, RF-11, RF-21 (Gráficas Filtrables e Historial por Corral)",
+
+        decision:
+          "Consultas sobre MUESTREOAGUA e HISTORIALCORRAL renderizadas dinámicamente con Chart.js."
+
+      },
+
+
+      {
+
+        id: "INS-05",
+
+        insight:
+          "Silos de información entre biología, logística de carnada y administración.",
+
+        impactoBase: 7,
+
+        requisito:
+          "RF-18, RF-19, RNF-05 (Integración entre Áreas y Permisos por Rol)",
+
+        decision:
+          "Modelo de acceso basado en roles (RBAC) conectado a la base de datos relacional ServaxBleu."
+
+      }
+
+    ];
+
+
+    let datasetI6 =
+      [...datasetTrazabilidad];
+
+
+    function getPriorityClass(priority) {
+
+      if (priority >= 120)
+        return 'priority-critical';
+
+      if (priority >= 80)
+        return 'priority-high';
+
+      return 'priority-normal';
+
+    }
+
+
+    function getPriorityLabel(priority) {
+
+      if (priority >= 120)
+        return 'Crítica';
+
+      if (priority >= 80)
+        return 'Alta';
+
+      return 'Normal';
+
+    }
+
+
+    function recalcularI6() {
+
+      const factor =
+        parseFloat(
+          document.getElementById(
+            'sliderPonderacion'
+          ).value
+        ) || 1.0;
+
+
+      document.getElementById(
+        'valFactor'
+      ).innerText =
+        factor.toFixed(1) + 'x';
+
+
+      datasetI6.forEach(item => {
+
+        item.prioridad =
+          Math.round(
+            item.impactoBase *
+            factor *
+            10
+          );
+
+      });
+
+
+      datasetI6.sort(
+        (a, b) =>
+          b.prioridad -
+          a.prioridad
+      );
+
+
+      renderGridI6(
+        datasetI6
+      );
+
+    }
+
+
+    function renderGridI6(data) {
+
+      const container =
+        document.getElementById(
+          'containerTraceability'
+        );
+
+
+      if (!data.length) {
+
+        container.innerHTML = `
+
+          <div class="glass rounded-2xl p-10 text-center">
+
+            <div class="w-10 h-10 mx-auto rounded-xl bg-slate-500/5 border border-slate-500/10 flex items-center justify-center mb-3">
+
+              <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-4-4" />
+              </svg>
+
+            </div>
+
+            <div class="text-xs font-bold">
+              Sin resultados
+            </div>
+
+            <p class="text-[10px] text-slate-400 mt-1">
+              No existen registros que coincidan con la búsqueda.
+            </p>
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+      container.innerHTML =
+        data.map(item => `
+
+          <article class="trace-card">
+
+            <div class="p-5 sm:p-6">
+
+              <!-- HEADER -->
+
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+
+                <div class="flex items-center gap-3">
+
+                  <div class="trace-node">
+
+                    <span class="text-[9px] font-extrabold">
+                      ${item.id.replace('INS-', '')}
+                    </span>
+
+                  </div>
+
+                  <div>
+
+                    <div class="eyebrow">
+                      Registro de trazabilidad
+                    </div>
+
+                    <div class="text-xs font-bold mt-0.5">
+                      ${item.id}
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="flex items-center gap-2">
+
+                  <div class="px-2.5 py-1.5 rounded-lg bg-slate-500/5 border border-slate-500/10">
+
+                    <span class="text-[8px] uppercase tracking-wider font-bold text-slate-400">
+                      Impacto
+                    </span>
+
+                    <span class="ml-1 text-[10px] font-extrabold">
+                      ${item.impactoBase}/10
+                    </span>
+
+                  </div>
+
+
+                  <div class="px-2.5 py-1.5 rounded-lg border text-[9px] font-extrabold uppercase tracking-wider ${getPriorityClass(item.prioridad)}">
+
+                    ${getPriorityLabel(item.prioridad)}
+                    · ${item.prioridad} pts
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- TRACE FLOW -->
+
+              <div class="relative grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7">
+
+                <!-- INSIGHT -->
+
+                <div class="trace-stage relative">
+
+                  <div class="hidden md:block trace-line left-[15px]"></div>
+
+                  <div class="flex gap-3">
+
+                    <div class="trace-node">
+
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                        <circle cx="12" cy="12" r="8" />
+                        <path d="M12 8v4l2.5 2" />
+                      </svg>
+
+                    </div>
+
+                    <div class="min-w-0">
+
+                      <div class="trace-stage-label mb-2">
+                        Perspectiva
+                      </div>
+
+                      <p class="trace-stage-content">
+                        ${item.insight}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <!-- REQUISITO -->
+
+                <div class="trace-stage">
+
+                  <div class="flex gap-3">
+
+                    <div class="trace-node">
+
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                        <path d="M7 5h10" />
+                        <path d="M7 9h10" />
+                        <path d="M7 13h6" />
+                        <path d="M7 17h4" />
+                      </svg>
+
+                    </div>
+
+                    <div class="min-w-0">
+
+                      <div class="trace-stage-label mb-2">
+                        Requisito RF / RNF
+                      </div>
+
+                      <p class="trace-stage-content font-semibold text-ocean-700 dark:text-ocean-300">
+                        ${item.requisito}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <!-- DECISION -->
+
+                <div class="trace-stage">
+
+                  <div class="flex gap-3">
+
+                    <div class="trace-node">
+
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                        <path d="M5 12h14" />
+                        <path d="M13 6l6 6-6 6" />
+                      </svg>
+
+                    </div>
+
+                    <div class="min-w-0">
+
+                      <div class="trace-stage-label mb-2">
+                        Decisión de arquitectura
+                      </div>
+
+                      <p class="trace-stage-content">
+                        ${item.decision}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- FOOTER -->
+
+              <div class="mt-5 pt-4 border-t border-slate-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+
+                <div class="flex items-center gap-2">
+
+                  <span class="w-1.5 h-1.5 rounded-full bg-ocean-500"></span>
+
+                  <span class="text-[9px] text-slate-400">
+                    Trazabilidad completa
+                  </span>
+
+                </div>
+
+                <div class="text-[9px] text-slate-400">
+                  Impacto ${item.impactoBase} · Factor dinámico aplicado
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        `).join('');
+
+    }
+
+
+    function filtrarI6() {
+
+      const q =
+        document.getElementById(
+          'inputSearchI6'
+        ).value
+          .toLowerCase()
+          .trim();
+
+
+      const result =
+        datasetI6.filter(item =>
+
+          item.id
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          item.insight
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          item.requisito
+            .toLowerCase()
+            .includes(q)
+
+          ||
+
+          item.decision
+            .toLowerCase()
+            .includes(q)
+
+        );
+
+
+      renderGridI6(result);
+
+    }
+
+
+    function exportarJSON_I6() {
+
+      downloadFile(
+
+        JSON.stringify(
+          datasetI6,
+          null,
+          2
+        ),
+
+        'Dynagram_ServaxBleu.json',
+
+        'application/json'
+
+      );
+
+    }
+
+
+    function exportarCSV_I6() {
+
+      let csv =
+        'ID,Insight,Requisito,Decision,Prioridad\n';
+
+
+      datasetI6.forEach(item => {
+
+        csv += [
+
+          csvEscape(item.id),
+
+          csvEscape(item.insight),
+
+          csvEscape(item.requisito),
+
+          csvEscape(item.decision),
+
+          item.prioridad
+
+        ].join(',') + '\n';
+
+      });
+
+
+      downloadFile(
+
+        csv,
+
+        'Dynagram_ServaxBleu.csv',
+
+        'text/csv'
+
+      );
+
+    }
+
+
+    /* =========================================================
+       DOWNLOAD
+    ========================================================= */
+
+    function downloadFile(
+      content,
+      fileName,
+      mimeType
+    ) {
+
+      const blob =
+        new Blob(
+          [content],
+          { type: mimeType }
+        );
+
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const a =
+        document.createElement('a');
+
+
+      a.href = url;
+
+      a.download =
+        fileName;
+
+      document.body.appendChild(a);
+
+      a.click();
+
+      a.remove();
+
+      setTimeout(
+        () => URL.revokeObjectURL(url),
+        1000
+      );
+
+    }
+
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+
+    window.addEventListener(
+      'load',
+      () => {
+
+        initChartI5();
+
+        recalcularI6();
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
