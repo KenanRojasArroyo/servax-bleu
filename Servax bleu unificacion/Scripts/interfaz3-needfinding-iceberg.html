@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servax Bleu | Interfaz 3 — Needfinding (El Iceberg)</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --bg: #f3f7fa;
+      --bg-secondary: #eaf1f5;
+      --surface: rgba(255, 255, 255, .78);
+      --surface-solid: #ffffff;
+      --border: rgba(148, 163, 184, .28);
+      --border-strong: rgba(8, 123, 158, .35);
+      --text: #0f172a;
+      --text-secondary: #334155;
+      --muted: #64748b;
+      --ocean: #087b9e;
+      --ocean-light: #1595bb;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --shadow: 0 18px 50px -28px rgba(15, 23, 42, .28);
+      --radius: 18px;
+    }
+
+    html.dark {
+      --bg: #07111e;
+      --bg-secondary: #0a1727;
+      --surface: rgba(13, 28, 46, .76);
+      --surface-solid: #0d1c2e;
+      --border: rgba(148, 163, 184, .13);
+      --border-strong: rgba(56, 189, 248, .30);
+      --text: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --muted: #94a3b8;
+      --ocean: #38b8d8;
+      --ocean-light: #7dd5eb;
+      --shadow: 0 25px 70px -30px rgba(0, 0, 0, .65);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg), var(--bg-secondary));
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(22px);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .iceberg {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .agua-superficie {
+      background: linear-gradient(180deg, #e0f2fe, #bae6fd);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    html.dark .agua-superficie {
+      background: linear-gradient(180deg, #0c4a6e, #075985);
+    }
+
+    .linea-flotacion {
+      height: 3px;
+      background: repeating-linear-gradient(90deg, var(--ocean) 0 10px, transparent 10px 20px);
+    }
+
+    .agua-profunda {
+      background: linear-gradient(180deg, #0c4a6e, #082f49);
+      padding: 1.5rem;
+      color: #e0f2fe;
+    }
+
+    .badge {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .15rem .55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .badge-obvia { background: #dbeafe; color: #1d4ed8; }
+    .badge-oculta { background: #0c4a6e; color: #bae6fd; }
+    .badge-alto { background: #fef3c7; color: #b45309; }
+    .badge-bajo { background: #e2e8f0; color: #475569; }
+
+    input, textarea, select {
+      width: 100%;
+      padding: .5rem .7rem;
+      border-radius: .6rem;
+      border: 1px solid var(--border);
+      background: var(--surface-solid);
+      color: var(--text);
+      font-size: .875rem;
+    }
+
+    label { font-size: .75rem; font-weight: 600; color: var(--muted); }
+
+    .btn {
+      padding: .5rem 1rem;
+      border-radius: .6rem;
+      font-weight: 600;
+      font-size: .85rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary { background: var(--ocean); color: #fff; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border-strong); color: var(--ocean); }
+    .btn-danger { background: transparent; color: var(--danger); font-size: .75rem; }
+
+    .necesidad-item {
+      background: rgba(255,255,255,.55);
+      border-radius: .6rem;
+      padding: .6rem .8rem;
+      margin-bottom: .5rem;
+      font-size: .85rem;
+    }
+
+    html.dark .necesidad-item { background: rgba(255,255,255,.06); }
+
+    .necesidad-oculta-item {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="glass m-4 p-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-lg font-bold" style="color:var(--ocean)">Interfaz 3 — Needfinding ("El Iceberg")</h1>
+      <p class="text-sm" style="color:var(--muted)">Separación estricta entre dato crudo observado e interpretación/inferencia · Servax Bleu</p>
+    </div>
+    <div class="flex gap-2">
+      <button id="btnExportJSON" class="btn btn-secondary">Exportar JSON</button>
+      <button id="btnExportCSV" class="btn btn-secondary">Exportar CSV</button>
+      <button id="btnThemeToggle" class="btn btn-secondary">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Columna: crear/editar sesión -->
+    <section class="glass p-5 lg:col-span-1">
+      <h2 class="font-bold mb-3" style="color:var(--ocean)">Nueva sesión de observación</h2>
+      <div class="space-y-3">
+        <div>
+          <label>Contexto (lugar / actividad)</label>
+          <input id="inContexto" placeholder="Ej. Muelle, revisión de corrales matutina">
+        </div>
+        <div>
+          <label>Usuario observado</label>
+          <input id="inUsuario" placeholder="Alias del usuario">
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input id="inFecha" type="date">
+        </div>
+        <button id="btnCrearSesion" class="btn btn-primary w-full">Crear sesión</button>
+      </div>
+
+      <div class="mt-6">
+        <h3 class="font-semibold text-sm mb-2" style="color:var(--muted)">Sesiones registradas</h3>
+        <div id="listaSesiones" class="space-y-2"></div>
+      </div>
+
+      <div id="resumenExamen" class="mt-4 p-3 rounded-lg text-xs"></div>
+    </section>
+
+    <!-- Columna: iceberg de la sesión seleccionada -->
+    <section class="lg:col-span-2 space-y-4">
+      <div id="sinSesion" class="glass p-8 text-center" style="color:var(--muted)">
+        Selecciona o crea una sesión para capturar necesidades obvias y ocultas.
+      </div>
+
+      <div id="panelIceberg" class="iceberg hidden">
+        <!-- SOBRE EL AGUA: necesidades obvias -->
+        <div class="agua-superficie">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold flex items-center gap-2" style="color:#0c4a6e">
+              🧊 Necesidades obvias <span class="badge badge-obvia">Dato crudo observado</span>
+            </h3>
+            <span id="contadorObvias" class="text-xs font-semibold"></span>
+          </div>
+          <form id="formObvia" class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+            <input id="obviaTexto" class="md:col-span-2" placeholder="Qué dijo/hizo la persona textualmente" required>
+            <input id="obviaFuente" placeholder="Fuente (quién, cuándo)" required>
+            <button class="btn btn-primary md:col-span-3">+ Agregar necesidad obvia</button>
+          </form>
+          <div id="listaObvias"></div>
+        </div>
+
+        <div class="linea-flotacion"></div>
+
+        <!-- BAJO EL AGUA: necesidades ocultas -->
+        <div class="agua-profunda">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold flex items-center gap-2">
+              🌊 Necesidades ocultas <span class="badge badge-oculta">Interpretación / inferencia</span>
+            </h3>
+            <span id="contadorOcultas" class="text-xs font-semibold"></span>
+          </div>
+          <form id="formOculta" class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+            <input id="ocultaTexto" placeholder="Necesidad inferida (interpretación del equipo)" required>
+            <input id="ocultaInferenciaDe" placeholder="¿De qué observación se dedujo?" required>
+            <input id="ocultaFuente" placeholder="Fuente / sesión" required>
+            <select id="ocultaPotencial">
+              <option value="Bajo">Potencial de innovación: Bajo</option>
+              <option value="Alto">Potencial de innovación: Alto</option>
+            </select>
+            <button class="btn btn-primary md:col-span-2">+ Agregar necesidad oculta</button>
+          </form>
+          <div id="listaOcultas"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Motores (deben cargarse antes de este script) -->
+  <script src="investigacion-motor-base.js"></script>
+  <script src="observacion-directa-engine.js"></script>
+
+  <script>
+    let sesionActivaId = null;
+
+    // --- Tema ---
+    document.getElementById('btnThemeToggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    function renderResumen() {
+      const r = MotorObservacionDirecta.resumenGeneral();
+      const el = document.getElementById('resumenExamen');
+      el.className = 'mt-4 p-3 rounded-lg text-xs ' + (r.cumpleMinimoExamen ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800');
+      el.innerHTML = `Total: <b>${r.totalNecesidadesVisibles}</b> obvias / <b>${r.totalNecesidadesOcultas}</b> ocultas (todas las sesiones).
+        Mínimo del examen (5 obvias / 3 ocultas): <b>${r.cumpleMinimoExamen ? 'CUMPLIDO ✅' : 'PENDIENTE ⚠️'}</b>`;
+    }
+
+    function renderListaSesiones() {
+      const cont = document.getElementById('listaSesiones');
+      const sesiones = MotorObservacionDirecta.listarSesiones();
+      cont.innerHTML = '';
+      sesiones.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'necesidad-item flex items-center justify-between cursor-pointer';
+        div.style.outline = s.id === sesionActivaId ? `2px solid var(--ocean)` : 'none';
+        div.innerHTML = `<div>
+            <div class="font-semibold">${s.contexto || '(sin contexto)'}</div>
+            <div class="text-xs" style="color:var(--muted)">${s.usuarioObservado || ''} · ${s.fecha || ''}</div>
+          </div>
+          <button class="btn-danger" data-del="${s.id}">✕</button>`;
+        div.addEventListener('click', (e) => {
+          if (e.target.dataset.del) return;
+          sesionActivaId = s.id;
+          renderTodo();
+        });
+        div.querySelector('[data-del]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          MotorObservacionDirecta.eliminarSesion(s.id);
+          if (sesionActivaId === s.id) sesionActivaId = null;
+          renderTodo();
+        });
+        cont.appendChild(div);
+      });
+      if (sesiones.length === 0) {
+        cont.innerHTML = `<p class="text-xs" style="color:var(--muted)">Aún no hay sesiones.</p>`;
+      }
+    }
+
+    function renderIceberg() {
+      const panel = document.getElementById('panelIceberg');
+      const vacio = document.getElementById('sinSesion');
+      if (!sesionActivaId) {
+        panel.classList.add('hidden');
+        vacio.classList.remove('hidden');
+        return;
+      }
+      const sesion = MotorObservacionDirecta.obtenerSesion(sesionActivaId);
+      if (!sesion) { panel.classList.add('hidden'); vacio.classList.remove('hidden'); return; }
+
+      panel.classList.remove('hidden');
+      vacio.classList.add('hidden');
+
+      document.getElementById('contadorObvias').textContent = `${sesion.necesidadesVisibles.length} registradas`;
+      document.getElementById('contadorOcultas').textContent = `${sesion.necesidadesOcultas.length} registradas`;
+
+      const listaObvias = document.getElementById('listaObvias');
+      listaObvias.innerHTML = '';
+      sesion.necesidadesVisibles.forEach((n, i) => {
+        const d = document.createElement('div');
+        d.className = 'necesidad-item';
+        d.innerHTML = `<b>${n.texto}</b><br><span class="text-xs" style="color:var(--muted)">Fuente: ${n.fuente}</span>`;
+        listaObvias.appendChild(d);
+      });
+
+      const listaOcultas = document.getElementById('listaOcultas');
+      listaOcultas.innerHTML = '';
+      sesion.necesidadesOcultas.forEach((n) => {
+        const d = document.createElement('div');
+        d.className = 'necesidad-item necesidad-oculta-item';
+        const badgePot = n.potencial === 'Alto' ? 'badge-alto' : 'badge-bajo';
+        d.innerHTML = `<div class="flex items-center justify-between">
+            <b>${n.texto}</b>
+            <span class="badge ${badgePot}">${n.potencial || 'Bajo'}</span>
+          </div>
+          <div class="text-xs opacity-80 mt-1">Inferido de: ${n.inferenciaDe} · Fuente: ${n.fuente}</div>`;
+        listaOcultas.appendChild(d);
+      });
+    }
+
+    function renderTodo() {
+      renderListaSesiones();
+      renderIceberg();
+      renderResumen();
+    }
+
+    document.getElementById('btnCrearSesion').addEventListener('click', () => {
+      const contexto = document.getElementById('inContexto').value.trim();
+      const usuarioObservado = document.getElementById('inUsuario').value.trim();
+      const fecha = document.getElementById('inFecha').value || new Date().toISOString().slice(0, 10);
+      if (!contexto) { alert('Captura el contexto de la sesión.'); return; }
+      const sesion = MotorObservacionDirecta.crearSesion({ contexto, usuarioObservado, fecha });
+      sesionActivaId = sesion.id;
+      document.getElementById('inContexto').value = '';
+      document.getElementById('inUsuario').value = '';
+      renderTodo();
+    });
+
+    document.getElementById('formObvia').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!sesionActivaId) return;
+      const texto = document.getElementById('obviaTexto').value.trim();
+      const fuente = document.getElementById('obviaFuente').value.trim();
+      if (!texto || !fuente) return;
+      MotorObservacionDirecta.agregarNecesidadVisible(sesionActivaId, { texto, fuente });
+      e.target.reset();
+      renderTodo();
+    });
+
+    document.getElementById('formOculta').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!sesionActivaId) return;
+      const texto = document.getElementById('ocultaTexto').value.trim();
+      const inferenciaDe = document.getElementById('ocultaInferenciaDe').value.trim();
+      const fuente = document.getElementById('ocultaFuente').value.trim();
+      const potencial = document.getElementById('ocultaPotencial').value;
+      if (!texto || !inferenciaDe || !fuente) return;
+      MotorObservacionDirecta.agregarNecesidadOculta(sesionActivaId, { texto, inferenciaDe, fuente, potencial });
+      e.target.reset();
+      renderTodo();
+    });
+
+    document.getElementById('btnExportJSON').addEventListener('click', () => MotorObservacionDirecta.exportarJSONArchivo());
+    document.getElementById('btnExportCSV').addEventListener('click', () => MotorObservacionDirecta.exportarCSVArchivo());
+
+    renderTodo();
+  </script>
+</body>
+</html>

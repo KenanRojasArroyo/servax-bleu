@@ -240,6 +240,8 @@
     <Compile Include="Controllers\HistorialCorralController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InventarioPezController.cs" />
+    <Compile Include="Controllers\LecturaSensorCorralController.cs" />
+    <Compile Include="Controllers\MuestreoAbioticoController.cs" />
     <Compile Include="Controllers\MuestreoAguaController.cs" />
     <Compile Include="Controllers\RegistroAlimentacionController.cs" />
     <Compile Include="Controllers\ReporteController.cs" />
@@ -255,6 +257,8 @@
     <Compile Include="Models\Especie.cs" />
     <Compile Include="Models\HistorialCorral.cs" />
     <Compile Include="Models\InventarioPez.cs" />
+    <Compile Include="Models\LecturaSensorCorral.cs" />
+    <Compile Include="Models\MuestreoAbiotico.cs" />
     <Compile Include="Models\MuestreoAgua.cs" />
     <Compile Include="Models\RegistroAlimentacion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -281,6 +285,8 @@
     <Content Include="Content\calidad.css" />
     <Content Include="Content\glassmorphism.css" />
     <Content Include="Content\index.css" />
+    <Content Include="Docs\schema_CalidadAgua_Alimentacion_v2.sql" />
+    <Content Include="Docs\unified_schema.sql" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -293,12 +299,18 @@
     <Content Include="README.md" />
     <Content Include="Docs\ERD_ServaxBleu.md" />
     <Content Include="Docs\ERD_ServaxBleu.drawio" />
+    <Content Include="Docs\Fase0_Design_Space_Exploration.md" />
     <Content Include="Docs\Fase1_Navegacion_y_Metadatos.md" />
-    <Content Include="Docs\Fase0_Desing_Space_Exploration.md" />
+    <Content Include="Docs\Documento_Reflexion.md" />
+    <Content Include="Docs\Fase2_Task_Flows.md" />
+    <Content Include="Docs\Fase4_Matriz_Diagnostica.md" />
+    <Content Include="Docs\Fase5_Experience_Stack.md" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\dashboard-charts.js" />
     <Content Include="Scripts\empathy-map-engine.js" />
     <Content Include="Scripts\entrevista-expertos-engine.js" />
+    <Content Include="Scripts\interfaz3-needfinding-iceberg.html" />
+    <Content Include="Scripts\InterfazesComb%285-6%29.html" />
     <Content Include="Scripts\investigacion-motor-base.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -324,7 +336,6 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
@@ -371,6 +382,7 @@
     <Content Include="Views\CrecimientoAnual\Delete.cshtml" />
     <Content Include="Views\CrecimientoAnual\Edit.cshtml" />
     <Content Include="Views\CrecimientoAnual\Index.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

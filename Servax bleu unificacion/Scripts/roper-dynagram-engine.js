@@ -1,121 +1,161 @@
 /**
  * roper-dynagram-engine.js — Interfaz 5 (Roper Dynagram)
  *
- * SUPUESTO A CONFIRMAR: se modelan los 8 segmentos clásicos del Cultural
- * Dynagram de Elisa Roper (Economía, Político/Legal, Tecnología,
- * Religión/Valores, Educación, Sociedad/Familia, Estética/Arte, Recreación).
- * Si el profesor pide un set de segmentos distinto, solo hay que cambiar
- * el arreglo SEGMENTOS de abajo — el resto de la lógica no cambia.
+ * CORRECCIÓN (sept. 2026): la versión anterior modelaba los 8 segmentos
+ * del "Cultural Dynagram" (Economía, Tecnología...), que NO es lo que pide
+ * la rúbrica. La rúbrica pide segmentación de VALORES de Roper con 4
+ * segmentos: Realists, Open Minded, Adventurers, Organics — y asignación
+ * de usuarios reales (de las entrevistas de campo) a cada segmento, con
+ * evidencia, no "insights" sueltos con una intensidad inventada.
  *
- * "Ley" de recálculo (visible/editable, igual que en requisitos-engine.js):
- * el nivel de cada segmento de la rueda = promedio de intensidad de los
- * insights vinculados a ese segmento. Sin insights vinculados, el segmento
- * arranca en 0 (vacío en la rueda, no hay evidencia todavía).
+ * "Ley" de recálculo: el % de cada segmento se deriva SIEMPRE de contar
+ * cuántos usuarios reales están asignados a ese segmento — nunca se
+ * escribe el porcentaje a mano. Agregar/editar/eliminar un usuario
+ * recalcula automáticamente toda la rueda.
  */
 
 const MotorRoperDynagram = (function () {
-    const STORAGE_KEY = "servaxbleu_roper_dynagram";
+  const STORAGE_KEY = "servaxbleu_roper_dynagram_v2";
 
-    const SEGMENTOS = [
-        "Economía", "Político/Legal", "Tecnología", "Religión/Valores",
-        "Educación", "Sociedad/Familia", "Estética/Arte", "Recreación"
-    ];
+  // Los 4 segmentos oficiales de la rúbrica (no cambiar sin confirmar con el profesor).
+  const SEGMENTOS = ["Realists", "Open Minded", "Adventurers", "Organics"];
 
-    let insights = [];
-    let siguienteId = 1;
-
-    function guardar() {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ insights, siguienteId })); }
-        catch (e) { console.error("No se pudo guardar el Roper Dynagram:", e); }
+  // Panel dinámico por segmento: Requisito UX, Funcionalidad y Tono
+  // (contenido editorial fijo del equipo, no viene de las entrevistas).
+  const PERFIL_SEGMENTO = {
+    "Realists": {
+      requisitoUX: "Control total y trazabilidad de cada dato capturado",
+      funcionalidad: "CRUD explícito, historial de cambios, confirmaciones antes de guardar",
+      tono: "Directo, técnico, sin adornos"
+    },
+    "Open Minded": {
+      requisitoUX: "Flexibilidad para explorar datos de formas no previstas",
+      funcionalidad: "Filtros combinables, exportación libre, Asistente de IA en lenguaje natural",
+      tono: "Exploratorio, invita a probar"
+    },
+    "Adventurers": {
+      requisitoUX: "Velocidad para tomar una decisión operativa ya",
+      funcionalidad: "Alertas push, atajos de captura rápida, dashboard con lo crítico primero",
+      tono: "Urgente, accionable, pocas palabras"
+    },
+    "Organics": {
+      requisitoUX: "Contexto y relación entre variables antes de actuar",
+      funcionalidad: "Vistas cruzadas (agua + alimento + mortalidad), reportes narrativos, historial por corral",
+      tono: "Explicativo, conecta causa y efecto"
     }
+  };
 
-    function cargar() {
-        try {
-            const crudo = localStorage.getItem(STORAGE_KEY);
-            if (crudo) {
-                const parsed = JSON.parse(crudo);
-                insights = parsed.insights || [];
-                siguienteId = parsed.siguienteId || 1;
-            }
-        } catch (e) { console.error("No se pudo leer el Roper Dynagram, se usa estado vacío:", e); }
+  let usuarios = [];
+  let siguienteId = 1;
+
+  function guardar() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ usuarios, siguienteId })); }
+    catch (e) { console.error("No se pudo guardar el Roper Dynagram:", e); }
+  }
+
+  function cargar() {
+    try {
+      const crudo = localStorage.getItem(STORAGE_KEY);
+      if (crudo) {
+        const parsed = JSON.parse(crudo);
+        usuarios = parsed.usuarios || [];
+        siguienteId = parsed.siguienteId || 1;
+      }
+    } catch (e) { console.error("No se pudo leer el Roper Dynagram, se usa estado vacío:", e); }
+  }
+
+  /**
+   * Asigna a un usuario REAL (de las entrevistas/observaciones de campo)
+   * a uno de los 4 segmentos, con la evidencia que sustenta esa asignación.
+   */
+  function asignarUsuario({ alias, segmento, evidencia, fuente = "", esUsuarioExtremo = false, esExperto = false, fecha = new Date().toISOString() }) {
+    if (!SEGMENTOS.includes(segmento)) {
+      throw new Error(`Segmento inválido: ${segmento}. Debe ser uno de ${SEGMENTOS.join(", ")}`);
     }
-
-    /** segmento debe ser uno de SEGMENTOS; intensidad 1-5 */
-    function agregarInsight({ segmento, texto, intensidad = 3, fuente = "", fecha = new Date().toISOString() }) {
-        if (!SEGMENTOS.includes(segmento)) {
-            throw new Error(`Segmento inválido: ${segmento}. Debe ser uno de ${SEGMENTOS.join(", ")}`);
-        }
-        const nuevo = { id: siguienteId++, segmento, texto, intensidad: clamp(intensidad, 1, 5), fuente, fecha };
-        insights.push(nuevo);
-        guardar();
-        return nuevo;
+    if (!alias || !evidencia) {
+      throw new Error("alias y evidencia son obligatorios — no se aceptan asignaciones sin evidencia.");
     }
+    const nuevo = { id: siguienteId++, alias, segmento, evidencia, fuente, esUsuarioExtremo, esExperto, fecha };
+    usuarios.push(nuevo);
+    guardar();
+    return nuevo;
+  }
 
-    function editarInsight(id, cambios) {
-        const insight = insights.find(i => i.id === id);
-        if (!insight) return null;
-        Object.assign(insight, cambios);
-        guardar();
-        return insight;
-    }
+  function editarUsuario(id, cambios) {
+    const usuario = usuarios.find(u => u.id === id);
+    if (!usuario) return null;
+    Object.assign(usuario, cambios);
+    guardar();
+    return usuario;
+  }
 
-    function eliminarInsight(id) {
-        insights = insights.filter(i => i.id !== id);
-        guardar();
-    }
+  function eliminarUsuario(id) {
+    usuarios = usuarios.filter(u => u.id !== id);
+    guardar();
+  }
 
-    function listarInsights(segmento = null) {
-        return segmento ? insights.filter(i => i.segmento === segmento) : [...insights];
-    }
+  function listarUsuarios(segmento = null) {
+    return segmento ? usuarios.filter(u => u.segmento === segmento) : [...usuarios];
+  }
 
-    /**
-     * LEY DE RECÁLCULO: nivel del segmento = promedio de intensidad de
-     * sus insights vinculados. Esto es lo que hace que "la rueda" se
-     * redibuje automáticamente en la UI cada vez que se agrega/edita
-     * un insight — la UI solo tiene que volver a llamar esta función.
-     */
-    function calcularRueda() {
-        return SEGMENTOS.map(segmento => {
-            const delSegmento = insights.filter(i => i.segmento === segmento);
-            const nivel = delSegmento.length
-                ? delSegmento.reduce((acc, i) => acc + i.intensidad, 0) / delSegmento.length
-                : 0;
-            return { segmento, nivel: Math.round(nivel * 100) / 100, numInsights: delSegmento.length };
-        });
-    }
+  /**
+   * LEY DE RECÁLCULO: % de cada segmento = usuarios asignados a ese
+   * segmento / total de usuarios asignados. Nunca se captura a mano.
+   */
+  function calcularRueda() {
+    const total = usuarios.length;
+    return SEGMENTOS.map(segmento => {
+      const delSegmento = usuarios.filter(u => u.segmento === segmento);
+      const porcentaje = total ? Math.round((delSegmento.length / total) * 1000) / 10 : 0;
+      return {
+        segmento,
+        cantidad: delSegmento.length,
+        porcentaje,
+        perfil: PERFIL_SEGMENTO[segmento]
+      };
+    });
+  }
 
-    function exportarJSON() {
-        return JSON.stringify({ segmentos: SEGMENTOS, insights, rueda: calcularRueda() }, null, 2);
-    }
-
-    function exportarCSV() {
-        const filas = [["Segmento", "Texto", "Intensidad", "Fuente", "Fecha"]];
-        insights.forEach(i => {
-            filas.push([i.segmento, `"${i.texto.replace(/"/g, '""')}"`, i.intensidad, i.fuente, i.fecha]);
-        });
-        return filas.map(f => f.join(",")).join("\n");
-    }
-
-    function descargarArchivo(nombre, contenido, tipoMime) {
-        const blob = new Blob([contenido], { type: tipoMime });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = nombre;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-
-    cargar();
-
+  function resumenCobertura() {
+    const total = usuarios.length;
     return {
-        SEGMENTOS,
-        agregarInsight, editarInsight, eliminarInsight, listarInsights,
-        calcularRueda,
-        exportarJSON, exportarCSV,
-        exportarJSONArchivo: () => descargarArchivo("roper_dynagram.json", exportarJSON(), "application/json"),
-        exportarCSVArchivo: () => descargarArchivo("roper_dynagram.csv", exportarCSV(), "text/csv")
+      totalUsuarios: total,
+      cubreExtremo: usuarios.some(u => u.esUsuarioExtremo),
+      cubreExperto: usuarios.some(u => u.esExperto),
+      cumpleMinimoExamen: total >= 4 && usuarios.some(u => u.esUsuarioExtremo) && usuarios.some(u => u.esExperto)
     };
+  }
+
+  function exportarJSON() {
+    return JSON.stringify({ segmentos: SEGMENTOS, usuarios, rueda: calcularRueda() }, null, 2);
+  }
+
+  function exportarCSV() {
+    const filas = [["Alias", "Segmento", "Evidencia", "Fuente", "UsuarioExtremo", "Experto", "Fecha"]];
+    usuarios.forEach(u => {
+      filas.push([u.alias, u.segmento, `"${u.evidencia.replace(/"/g, '""')}"`, u.fuente, u.esUsuarioExtremo, u.esExperto, u.fecha]);
+    });
+    return filas.map(f => f.join(",")).join("\n");
+  }
+
+  function descargarArchivo(nombre, contenido, tipoMime) {
+    const blob = new Blob([contenido], { type: tipoMime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nombre;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  cargar();
+
+  return {
+    SEGMENTOS, PERFIL_SEGMENTO,
+    asignarUsuario, editarUsuario, eliminarUsuario, listarUsuarios,
+    calcularRueda, resumenCobertura,
+    exportarJSON, exportarCSV,
+    exportarJSONArchivo: () => descargarArchivo("roper_dynagram.json", exportarJSON(), "application/json"),
+    exportarCSVArchivo: () => descargarArchivo("roper_dynagram.csv", exportarCSV(), "text/csv")
+  };
 })();
