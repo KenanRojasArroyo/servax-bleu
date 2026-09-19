@@ -1,0 +1,76 @@
+<mxfile host="app.diagrams.net" modified="2026-09-18T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram name="ERD ServaxBleu" id="erd-servaxbleu">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+<mxCell id="n100" value="<b>Especie</b><br><hr size=1>IdEspecie (PK)<br>Nombre<br>NombreCientifico<br>Tipo<br>EsToxica<br>Descripcion<br>Activo" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="40" y="40" width="240" height="156" as="geometry"/>
+</mxCell>
+<mxCell id="n101" value="<b>Corral</b><br><hr size=1>IdCorral (PK)<br>Nombre<br>Ubicacion<br>CapacidadMaxima<br>FechaInstalacion<br>Estado<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="320" y="40" width="240" height="156" as="geometry"/>
+</mxCell>
+<mxCell id="n102" value="<b>Barco</b><br><hr size=1>IdBarco (PK)<br>Nombre<br>CapacidadToneladas<br>Estado<br>FechaAlta<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="600" y="40" width="240" height="138" as="geometry"/>
+</mxCell>
+<mxCell id="n103" value="<b>Alimento</b><br><hr size=1>IdAlimento (PK)<br>Nombre<br>TipoAlimento<br>UnidadMedida<br>StockActual<br>CostoUnitario<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="880" y="40" width="240" height="156" as="geometry"/>
+</mxCell>
+<mxCell id="n104" value="<b>Calidad (legacy)</b><br><hr size=1>id (PK)<br>Fecha<br>Temperatura<br>Oxigeno<br>Profundidad" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="1160" y="40" width="240" height="120" as="geometry"/>
+</mxCell>
+<mxCell id="n105" value="<b>InventarioPez</b><br><hr size=1>IdInventario (PK)<br>IdCorral (FK-&gt;Corral)<br>IdEspecie (FK-&gt;Especie)<br>Cantidad<br>PesoPromedioKg<br>Estado<br>FechaRegistro<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="40" y="320" width="240" height="174" as="geometry"/>
+</mxCell>
+<mxCell id="n106" value="<b>MuestreoAgua</b><br><hr size=1>IdMuestreo (PK)<br>IdCorral (FK-&gt;Corral)<br>Fecha<br>Temperatura<br>Oxigeno<br>Profundidad<br>PH<br>Salinidad<br>Nutrientes<br>Irregularidad<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="320" y="320" width="240" height="228" as="geometry"/>
+</mxCell>
+<mxCell id="n107" value="<b>CrecimientoAnual</b><br><hr size=1>IdCrecimiento (PK)<br>IdCorral (FK-&gt;Corral)<br>IdEspecie (FK-&gt;Especie)<br>Anio<br>PesoPromedioInicial<br>PesoPromedioFinal<br>TasaCrecimiento<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="600" y="320" width="240" height="174" as="geometry"/>
+</mxCell>
+<mxCell id="n108" value="<b>RegistroAlimentacion</b><br><hr size=1>IdRegistro (PK)<br>IdCorral (FK-&gt;Corral)<br>IdAlimento (FK-&gt;Alimento)<br>Fecha<br>CantidadKg<br>Responsable<br>Mortalidad<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="880" y="320" width="240" height="174" as="geometry"/>
+</mxCell>
+<mxCell id="n109" value="<b>DistribucionAlimento</b><br><hr size=1>IdDistribucion (PK)<br>IdBarco (FK-&gt;Barco)<br>IdAlimento (FK-&gt;Alimento)<br>IdCorral (FK-&gt;Corral)<br>Fecha<br>CantidadToneladas<br>FormulaAplicada<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="320" y="600" width="240" height="174" as="geometry"/>
+</mxCell>
+<mxCell id="n110" value="<b>HistorialCorral</b><br><hr size=1>IdHistorial (PK)<br>IdCorral (FK-&gt;Corral)<br>Fecha<br>CantidadPeces<br>EstadoGeneral<br>ResumenCalidadAgua<br>ResumenNutrientes<br>Observaciones" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+  <mxGeometry x="600" y="600" width="240" height="174" as="geometry"/>
+</mxCell>
+<mxCell id="e111" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n101" target="n105">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e112" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n101" target="n106">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e113" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n101" target="n107">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e114" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n101" target="n108">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e115" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n101" target="n109">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e116" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n101" target="n110">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e117" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n100" target="n105">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e118" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n100" target="n107">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e119" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n103" target="n108">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e120" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n103" target="n109">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+<mxCell id="e121" value="1..N" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=ERmany;startArrow=ERone;fontSize=10;" edge="1" parent="1" source="n102" target="n109">
+  <mxGeometry relative="1" as="geometry"/>
+</mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
