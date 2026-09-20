@@ -302,6 +302,13 @@ namespace Servax_bleu_unificacion.Controllers
             return lista;
         }
 
+        // Las columnas DECIMAL llegan del reader como System.Decimal en caja; un cast directo
+        // "(double?)dr[...]" lanza InvalidCastException. Convert.ToDouble acepta decimal y float.
+        private static double? Dbl(object valor)
+        {
+            return (valor == null || valor == DBNull.Value) ? (double?)null : Convert.ToDouble(valor);
+        }
+
         private static LecturaSensorCorral Mapear(SqlDataReader dr)
         {
             return new LecturaSensorCorral
@@ -309,12 +316,12 @@ namespace Servax_bleu_unificacion.Controllers
                 IdLectura = dr.GetInt32(dr.GetOrdinal("IdLectura")),
                 IdCorral = dr.GetInt32(dr.GetOrdinal("IdCorral")),
                 Fecha = dr.GetDateTime(dr.GetOrdinal("Fecha")),
-                Profundidad = (double)dr["Profundidad"],
+                Profundidad = Convert.ToDouble(dr["Profundidad"]), // DECIMAL(5,2) -> el cast directo a double truena
                 MetodoCaptura = dr["MetodoCaptura"] as string,
                 IdSensor = dr["IdSensor"] != DBNull.Value ? (int?)dr["IdSensor"] : null,
-                Temperatura = dr["Temperatura"] != DBNull.Value ? (double?)dr["Temperatura"] : null,
-                OxigenoMgL = dr["OxigenoMgL"] != DBNull.Value ? (double?)dr["OxigenoMgL"] : null,
-                SaturacionOxigenoPct = dr["SaturacionOxigenoPct"] != DBNull.Value ? (double?)dr["SaturacionOxigenoPct"] : null,
+                Temperatura = Dbl(dr["Temperatura"]),
+                OxigenoMgL = Dbl(dr["OxigenoMgL"]),
+                SaturacionOxigenoPct = Dbl(dr["SaturacionOxigenoPct"]),
                 NombreCorral = dr["NombreCorral"] as string,
                 NumeroSensor = dr["NumeroSensor"] as string,
                 MarcaSensor = dr["MarcaSensor"] as string

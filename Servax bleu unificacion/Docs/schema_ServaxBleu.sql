@@ -1,4 +1,4 @@
--- =====================================================================
+﻿-- =====================================================================
 -- schema_ServaxBleu.sql
 -- Sistema de gestión de granja de atún (ServaxBleu)
 -- Motor: Microsoft SQL Server (T-SQL)

@@ -285,7 +285,9 @@
     <Content Include="Content\calidad.css" />
     <Content Include="Content\glassmorphism.css" />
     <Content Include="Content\index.css" />
+    <Content Include="Docs\migration_EstacionMonitoreo.sql" />
     <Content Include="Docs\schema_CalidadAgua_Alimentacion_v2.sql" />
+    <Content Include="Docs\schema_ServaxBleu.sql" />
     <Content Include="Docs\unified_schema.sql" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -305,6 +307,7 @@
     <Content Include="Docs\Fase2_Task_Flows.md" />
     <Content Include="Docs\Fase4_Matriz_Diagnostica.md" />
     <Content Include="Docs\Fase5_Experience_Stack.md" />
+    <Content Include=".editorconfig" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\dashboard-charts.js" />
     <Content Include="Scripts\empathy-map-engine.js" />
@@ -383,6 +386,14 @@
     <Content Include="Views\CrecimientoAnual\Edit.cshtml" />
     <Content Include="Views\CrecimientoAnual\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\LecturaSensorCorral\Create.cshtml" />
+    <Content Include="Views\LecturaSensorCorral\Delete.cshtml" />
+    <Content Include="Views\LecturaSensorCorral\Edit.cshtml" />
+    <Content Include="Views\LecturaSensorCorral\Index.cshtml" />
+    <Content Include="Views\MuestreoAbiotico\Create.cshtml" />
+    <Content Include="Views\MuestreoAbiotico\Delete.cshtml" />
+    <Content Include="Views\MuestreoAbiotico\Edit.cshtml" />
+    <Content Include="Views\MuestreoAbiotico\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

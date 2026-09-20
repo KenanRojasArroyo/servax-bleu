@@ -21,20 +21,40 @@ namespace Servax_bleu_unificacion.Servicios
         private readonly string _ollamaUrl = ConfigurationManager.AppSettings["OllamaUrl"] ?? "http://localhost:11434/api/generate";
         private readonly string _ollamaModel = ConfigurationManager.AppSettings["OllamaModel"] ?? "qwen2.5-coder:7b";
 
-        // Esquema confirmado al 100% contra INFORMATION_SCHEMA.COLUMNS (16/09/2026).
-        // Las 11 tablas de ServaxBleu están verificadas columna por columna.
+        // Las 11 tablas originales de ServaxBleu están confirmadas contra INFORMATION_SCHEMA.COLUMNS (16/09/2026).
+        // Las tablas/vistas de Calidad de Agua y Alimentación v2 (Sitio, Sensor, LecturaSensorCorral,
+        // MuestreoAbiotico, fitoplancton, carga de barcos...) salen de unified_schema.sql:
+        // ⚠️ pendiente de verificar contra INFORMATION_SCHEMA de la BD real.
         private const string EsquemaTablas = @"
  - Tabla Calidad: id (INT, PK), Fecha (DATE), Temperatura (FLOAT), Oxigeno (FLOAT), Profundidad (FLOAT)
- - Tabla Corral: IdCorral (INT, PK), Nombre (VARCHAR), Ubicacion (VARCHAR), CapacidadMaxima (DECIMAL), FechaInstalacion (DATE), Estado (VARCHAR), Observaciones (VARCHAR)
+ - Tabla Corral: IdCorral (INT, PK), IdSitio (INT, FK -> Sitio.IdSitio, nullable), Nombre (VARCHAR), Ubicacion (VARCHAR), CapacidadMaxima (DECIMAL), FechaInstalacion (DATE), Estado (VARCHAR), Observaciones (VARCHAR)
  - Tabla Especie: IdEspecie (INT, PK), Nombre (VARCHAR), NombreCientifico (VARCHAR), Tipo (VARCHAR), EsToxica (BIT), Descripcion (VARCHAR), Activo (BIT)
  - Tabla InventarioPez: IdInventario (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdEspecie (INT, FK -> Especie.IdEspecie), Cantidad (INT), PesoPromedioKg (DECIMAL), Estado (VARCHAR), FechaRegistro (DATE), Observaciones (VARCHAR)
  - Tabla MuestreoAgua: IdMuestreo (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATE), Temperatura (FLOAT), Oxigeno (FLOAT), Profundidad (FLOAT), PH (FLOAT), Salinidad (FLOAT), Nutrientes (VARCHAR), Irregularidad (VARCHAR), Observaciones (VARCHAR)
  - Tabla CrecimientoAnual: IdCrecimiento (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdEspecie (INT, FK -> Especie.IdEspecie), Anio (INT), PesoPromedioInicial (DECIMAL), PesoPromedioFinal (DECIMAL), TasaCrecimiento (FLOAT), Observaciones (VARCHAR)
- - Tabla RegistroAlimentacion: IdRegistro (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdAlimento (INT, FK -> Alimento.IdAlimento), Fecha (DATE), CantidadKg (DECIMAL), Responsable (VARCHAR), Mortalidad (INT), Observaciones (VARCHAR)
- - Tabla Alimento: IdAlimento (INT, PK), Nombre (VARCHAR), TipoAlimento (VARCHAR), UnidadMedida (VARCHAR), StockActual (DECIMAL), CostoUnitario (DECIMAL), Observaciones (VARCHAR)
+ - Tabla RegistroAlimentacion: IdRegistro (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), IdAlimento (INT, FK -> Alimento.IdAlimento), IdPresentacion (INT, FK -> PresentacionAlimento.IdPresentacion, nullable), Fecha (DATE), CantidadKg (DECIMAL), Responsable (VARCHAR), Mortalidad (INT), Observaciones (VARCHAR)
+ - Tabla Alimento: IdAlimento (INT, PK), IdPresentacionDefault (INT, FK -> PresentacionAlimento.IdPresentacion, nullable), Nombre (VARCHAR), TipoAlimento (VARCHAR), UnidadMedida (VARCHAR), StockActual (DECIMAL), CostoUnitario (DECIMAL), Observaciones (VARCHAR)
  - Tabla Barco: IdBarco (INT, PK), Nombre (VARCHAR), CapacidadToneladas (DECIMAL), Estado (VARCHAR), FechaAlta (DATE), Observaciones (VARCHAR)
  - Tabla DistribucionAlimento: IdDistribucion (INT, PK), IdBarco (INT, FK -> Barco.IdBarco), IdAlimento (INT, FK -> Alimento.IdAlimento), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATETIME), CantidadToneladas (DECIMAL), FormulaAplicada (VARCHAR), Observaciones (VARCHAR)
- - Tabla HistorialCorral: IdHistorial (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATETIME), CantidadPeces (INT), EstadoGeneral (VARCHAR), ResumenCalidadAgua (VARCHAR), ResumenNutrientes (VARCHAR), Observaciones (VARCHAR)";
+ - Tabla HistorialCorral: IdHistorial (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATETIME), CantidadPeces (INT), EstadoGeneral (VARCHAR), ResumenCalidadAgua (VARCHAR), ResumenNutrientes (VARCHAR), Observaciones (VARCHAR)
+ - Tabla Sitio: IdSitio (INT, PK), Nombre (VARCHAR)
+ - Tabla Nutriente: IdNutriente (INT, PK), Nombre (VARCHAR: Nitritos, Nitratos, Silicatos, Hierro, Amonio, Fosfatos), UnidadMedida (VARCHAR)
+ - Tabla Sensor: IdSensor (INT, PK), NumeroSensor (VARCHAR), Marca (VARCHAR), IdCorral (INT, FK -> Corral.IdCorral), ProfundidadInstalacion (DECIMAL), Activo (BIT)
+ - Tabla LecturaSensorCorral: IdLectura (INT, PK), IdCorral (INT, FK -> Corral.IdCorral), Fecha (DATE), Profundidad (DECIMAL), MetodoCaptura (VARCHAR: 'Sensor' o 'Manual'), IdSensor (INT, FK -> Sensor.IdSensor, NULL si es Manual), Temperatura (FLOAT), OxigenoMgL (FLOAT), SaturacionOxigenoPct (FLOAT)
+ - Tabla MuestreoAbiotico: IdMuestreo (INT, PK), IdSitio (INT, FK -> Sitio.IdSitio), Fecha (DATE), Turno (VARCHAR: 'Mañana', 'Tarde' o 'Noche'), OxigenoDisueltoMgL (DECIMAL), TurbidezM (DECIMAL), Observaciones (VARCHAR)
+ - Tabla MuestreoNutriente: IdMuestreo (INT, PK, FK -> MuestreoAbiotico.IdMuestreo), IdNutriente (INT, PK, FK -> Nutriente.IdNutriente), Valor (DECIMAL)
+ - Tabla EstacionMonitoreo: IdEstacion (INT, PK), Nombre (VARCHAR: '1' a '5' y 'El Sauzal'; son puntos físicos de muestreo, no temporadas)
+ - Tabla CategoriaFitoplancton: IdCategoria (INT, PK), Nombre (VARCHAR: Dinoflagelados, Silicoflagelados, Diatomeas)
+ - Tabla MuestreoFitoplancton: IdMuestreoFito (INT, PK), IdSitio (INT, FK -> Sitio.IdSitio), IdEstacion (INT, FK -> EstacionMonitoreo.IdEstacion), Fecha (DATE), AbundanciaTotalCelulasL (DECIMAL), Especie (VARCHAR), Observaciones (VARCHAR)
+ - Tabla MuestreoFitoplanctonCategoria: IdMuestreoFito (INT, PK, FK -> MuestreoFitoplancton.IdMuestreoFito), IdCategoria (INT, PK, FK -> CategoriaFitoplancton.IdCategoria), AbundanciaCelulasL (DECIMAL)
+ - Tabla PresentacionAlimento: IdPresentacion (INT, PK), Nombre (VARCHAR: 'Fresco' o 'Congelado'), PesoPromedioPorBolsaKg (DECIMAL)
+ - Tabla CalculoCargaBarco: IdCalculo (INT, PK), IdBarco (INT, FK -> Barco.IdBarco), IdAlimento (INT, FK -> Alimento.IdAlimento), IdPresentacion (INT, FK -> PresentacionAlimento.IdPresentacion), Fecha (DATE), NumeroBolsas (INT), Observaciones (VARCHAR)
+ - Tabla CalculoCargaBarcoCorral: IdCalculo (INT, PK, FK -> CalculoCargaBarco.IdCalculo), IdCorral (INT, PK, FK -> Corral.IdCorral), ToneladasAsignadas (DECIMAL), ReporteBuceoAjuste (VARCHAR: 'Subir', 'Bajar' o 'Sin cambio'), Observaciones (VARCHAR)
+ - Vista vw_CalidadAguaSitio (ya pivoteada, preferirla para calidad de agua por sitio): Sitio (VARCHAR), Fecha, Turno, OxigenoDisueltoMgL, TurbidezM, Nitritos, Nitratos, Silicatos, Hierro, Amonio, Fosfatos
+ - Vista vw_LecturaSensorVsManual: Corral (VARCHAR), Fecha, Profundidad, Temp_Sensor, Temp_Manual, O2_Sensor, O2_Manual
+ - Vista vw_AbioticoFitoplancton: Sitio (VARCHAR), Fecha, OxigenoPromedioDia, TurbidezPromedioDia, AbundanciaTotalCelulasL, Estacion (VARCHAR, nombre de la estación de monitoreo)
+ - Vista vw_ConsumoAlimentoCorral: Corral (VARCHAR), Alimento (VARCHAR), Presentacion (VARCHAR), Fecha, CantidadKg, Mortalidad
+ - Vista vw_CargaBarcoCalculada: IdCalculo, Barco (VARCHAR), Alimento (VARCHAR), Presentacion (VARCHAR), Fecha, NumeroBolsas, PesoTotalKgEstimado";
 
         /// <summary>
         /// 1. Envía la pregunta en lenguaje natural al modelo local (Ollama) y regresa el SQL generado.

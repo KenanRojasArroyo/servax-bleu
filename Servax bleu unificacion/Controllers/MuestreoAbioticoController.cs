@@ -42,13 +42,26 @@ namespace Servax_bleu_unificacion.Controllers
             using (SqlConnection con = cn.ObtenerConexion())
             {
                 con.Open();
-                // Se usa la vista vw_CalidadAguaSitio: ya trae los nutrientes
-                // pivoteados a columnas, evita 6 joins manuales aquí.
-                string query = @"SELECT Sitio, Fecha, Turno, OxigenoDisueltoMgL, TurbidezM,
-                                         Nitritos, Nitratos, Silicatos, Hierro, Amonio, Fosfatos
-                                  FROM vw_CalidadAguaSitio
-                                  WHERE (@idSitio IS NULL OR Sitio = (SELECT Nombre FROM Sitio WHERE IdSitio = @idSitio))
-                                  ORDER BY Fecha DESC, Turno;";
+                // Mismo pivoteo de nutrientes que vw_CalidadAguaSitio, pero incluyendo
+                // IdMuestreo/IdSitio: la vista no los expone y el listado los necesita
+                // para los enlaces Editar/Eliminar.
+                string query = @"SELECT m.IdMuestreo, m.IdSitio, s.Nombre AS Sitio, m.Fecha, m.Turno,
+                                         m.OxigenoDisueltoMgL, m.TurbidezM, m.Observaciones,
+                                         MAX(CASE WHEN n.Nombre = 'Nitritos'  THEN mn.Valor END) AS Nitritos,
+                                         MAX(CASE WHEN n.Nombre = 'Nitratos'  THEN mn.Valor END) AS Nitratos,
+                                         MAX(CASE WHEN n.Nombre = 'Silicatos' THEN mn.Valor END) AS Silicatos,
+                                         MAX(CASE WHEN n.Nombre = 'Hierro'    THEN mn.Valor END) AS Hierro,
+                                         MAX(CASE WHEN n.Nombre = 'Amonio'    THEN mn.Valor END) AS Amonio,
+                                         MAX(CASE WHEN n.Nombre = 'Fosfatos'  THEN mn.Valor END) AS Fosfatos
+                                  FROM MuestreoAbiotico m
+                                  INNER JOIN Sitio s ON s.IdSitio = m.IdSitio
+                                  LEFT JOIN MuestreoNutriente mn ON mn.IdMuestreo = m.IdMuestreo
+                                  LEFT JOIN Nutriente n ON n.IdNutriente = mn.IdNutriente
+                                  WHERE (@idSitio IS NULL OR m.IdSitio = @idSitio)
+                                  GROUP BY m.IdMuestreo, m.IdSitio, s.Nombre, m.Fecha, m.Turno,
+                                           m.OxigenoDisueltoMgL, m.TurbidezM, m.Observaciones
+                                  ORDER BY m.Fecha DESC,
+                                           CASE m.Turno WHEN 'Mañana' THEN 1 WHEN 'Tarde' THEN 2 ELSE 3 END;";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -59,14 +72,17 @@ namespace Servax_bleu_unificacion.Controllers
                         {
                             var m = new MuestreoAbiotico
                             {
+                                IdMuestreo = dr.GetInt32(dr.GetOrdinal("IdMuestreo")),
+                                IdSitio = dr.GetInt32(dr.GetOrdinal("IdSitio")),
                                 NombreSitio = dr["Sitio"] as string,
                                 Fecha = dr.GetDateTime(dr.GetOrdinal("Fecha")),
                                 Turno = dr["Turno"] as string,
-                                OxigenoDisueltoMgL = dr["OxigenoDisueltoMgL"] != DBNull.Value ? (double?)dr["OxigenoDisueltoMgL"] : null,
-                                TurbidezM = dr["TurbidezM"] != DBNull.Value ? (double?)dr["TurbidezM"] : null
+                                OxigenoDisueltoMgL = Dbl(dr["OxigenoDisueltoMgL"]),
+                                TurbidezM = Dbl(dr["TurbidezM"]),
+                                Observaciones = dr["Observaciones"] as string
                             };
                             foreach (var n in NUTRIENTES_ORDEN)
-                                m.Nutrientes[n] = dr[n] != DBNull.Value ? (double?)dr[n] : null;
+                                m.Nutrientes[n] = Dbl(dr[n]);
                             lista.Add(m);
                         }
                     }
@@ -299,8 +315,11 @@ namespace Servax_bleu_unificacion.Controllers
             {
                 con.Open();
                 using (SqlCommand cmd = new SqlCommand(
-                    @"SELECT IdMuestreo, IdSitio, Fecha, Turno, OxigenoDisueltoMgL, TurbidezM, Observaciones
-                      FROM MuestreoAbiotico WHERE IdMuestreo = @IdMuestreo;", con))
+                    @"SELECT m.IdMuestreo, m.IdSitio, s.Nombre AS NombreSitio, m.Fecha, m.Turno,
+                             m.OxigenoDisueltoMgL, m.TurbidezM, m.Observaciones
+                      FROM MuestreoAbiotico m
+                      INNER JOIN Sitio s ON s.IdSitio = m.IdSitio
+                      WHERE m.IdMuestreo = @IdMuestreo;", con))
                 {
                     cmd.Parameters.AddWithValue("@IdMuestreo", id);
                     using (SqlDataReader dr = cmd.ExecuteReader())
@@ -310,10 +329,11 @@ namespace Servax_bleu_unificacion.Controllers
                         {
                             IdMuestreo = dr.GetInt32(dr.GetOrdinal("IdMuestreo")),
                             IdSitio = dr.GetInt32(dr.GetOrdinal("IdSitio")),
+                            NombreSitio = dr["NombreSitio"] as string,
                             Fecha = dr.GetDateTime(dr.GetOrdinal("Fecha")),
                             Turno = dr["Turno"] as string,
-                            OxigenoDisueltoMgL = dr["OxigenoDisueltoMgL"] != DBNull.Value ? (double?)dr["OxigenoDisueltoMgL"] : null,
-                            TurbidezM = dr["TurbidezM"] != DBNull.Value ? (double?)dr["TurbidezM"] : null,
+                            OxigenoDisueltoMgL = Dbl(dr["OxigenoDisueltoMgL"]),
+                            TurbidezM = Dbl(dr["TurbidezM"]),
                             Observaciones = dr["Observaciones"] as string
                         };
                     }
@@ -329,12 +349,19 @@ namespace Servax_bleu_unificacion.Controllers
                     {
                         while (dr.Read())
                         {
-                            m.Nutrientes[dr["Nombre"].ToString()] = dr["Valor"] != DBNull.Value ? (double?)dr["Valor"] : null;
+                            m.Nutrientes[dr["Nombre"].ToString()] = Dbl(dr["Valor"]);
                         }
                     }
                 }
             }
             return m;
+        }
+
+        // Las columnas DECIMAL llegan del reader como System.Decimal en caja; un cast directo
+        // "(double?)dr[...]" lanza InvalidCastException. Convert.ToDouble acepta decimal y float.
+        private static double? Dbl(object valor)
+        {
+            return (valor == null || valor == DBNull.Value) ? (double?)null : Convert.ToDouble(valor);
         }
 
         private string ObtenerNombreSitio(int idSitio)

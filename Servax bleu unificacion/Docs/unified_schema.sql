@@ -1,4 +1,4 @@
--- =====================================================================
+﻿-- =====================================================================
 -- UNIFIED SCHEMA: ServaxBleu + Calidad de Agua & Alimentación v2
 -- ORDENADO JERÁRQUICAMENTE PARA CREACIÓN DESDE CERO (SIN ALTER TABLES)
 -- =====================================================================
@@ -69,6 +69,18 @@ CREATE TABLE CategoriaFitoplancton (
 );
 GO
 INSERT INTO CategoriaFitoplancton (Nombre) VALUES ('Dinoflagelados'), ('Silicoflagelados'), ('Diatomeas');
+GO
+
+-- Estaciones físicas de monitoreo de fitoplancton (en los datos reales: 1 a 5 y "El Sauzal").
+-- NO son temporadas del año: es un punto de muestreo. Se modela como catálogo propio.
+-- ⚠️ Pendiente confirmar con Arian si cada estación pertenece a un Sitio concreto; mientras
+--    tanto no se fuerza esa relación (MuestreoFitoplancton ya guarda el IdSitio de la muestra).
+CREATE TABLE EstacionMonitoreo (
+    IdEstacion  INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre      VARCHAR(50) NOT NULL UNIQUE
+);
+GO
+INSERT INTO EstacionMonitoreo (Nombre) VALUES ('1'), ('2'), ('3'), ('4'), ('5'), ('El Sauzal');
 GO
 
 
@@ -195,8 +207,8 @@ GO
 CREATE TABLE MuestreoFitoplancton (
     IdMuestreoFito              INT IDENTITY(1,1) PRIMARY KEY,
     IdSitio                     INT NOT NULL FOREIGN KEY REFERENCES Sitio(IdSitio),
+    IdEstacion                  INT NOT NULL FOREIGN KEY REFERENCES EstacionMonitoreo(IdEstacion),
     Fecha                       DATE NOT NULL,
-    Estacion                    VARCHAR(30) NOT NULL,
     AbundanciaTotalCelulasL     DECIMAL(14,2) NULL,
     Especie                     VARCHAR(100) NULL,
     Observaciones               VARCHAR(300) NULL
@@ -294,11 +306,12 @@ SELECT
     AVG(a.OxigenoDisueltoMgL) AS OxigenoPromedioDia,
     AVG(a.TurbidezM) AS TurbidezPromedioDia,
     f.AbundanciaTotalCelulasL,
-    f.Estacion
+    e.Nombre AS Estacion
 FROM MuestreoAbiotico a
 JOIN Sitio s ON s.IdSitio = a.IdSitio
 LEFT JOIN MuestreoFitoplancton f ON f.IdSitio = a.IdSitio AND f.Fecha = a.Fecha
-GROUP BY s.Nombre, a.Fecha, f.AbundanciaTotalCelulasL, f.Estacion;
+LEFT JOIN EstacionMonitoreo e ON e.IdEstacion = f.IdEstacion
+GROUP BY s.Nombre, a.Fecha, f.AbundanciaTotalCelulasL, e.Nombre;
 GO
 
 CREATE VIEW vw_ConsumoAlimentoCorral AS

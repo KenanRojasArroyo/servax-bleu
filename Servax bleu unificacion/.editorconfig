@@ -1,0 +1,7 @@
+# Codificación de archivos.
+# ASP.NET lee los .cshtml SIN BOM como ANSI (Windows-1252) y los acentos salen como "Ã³", "Â¿", etc.
+# Todo .cshtml (y por consistencia .cs y .sql) debe guardarse como UTF-8 CON BOM.
+root = true
+
+[*.{cshtml,cs,sql}]
+charset = utf-8-bom

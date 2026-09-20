@@ -1,0 +1,76 @@
+﻿@model Servax_bleu_unificacion.Models.MuestreoAbiotico
+@{
+    ViewBag.Title = "Nuevo Muestreo Abiótico";
+    var nutrientes = new[] { "Nitritos", "Nitratos", "Silicatos", "Hierro", "Amonio", "Fosfatos" };
+    var turnos = new[] { "Manana", "Tarde", "Noche" };
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-plus text-primary me-2"></i>Nuevo Muestreo Abi&oacute;tico</h4>
+
+    <div class="alert alert-info small">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        Un muestreo es una fecha + un turno dentro de un sitio (no se puede repetir la misma combinaci&oacute;n).
+        Si el ox&iacute;geno disuelto sale fuera de rango, se dispara una alerta por correo.
+    </div>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Create", "MuestreoAbiotico", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Sitio *</label>
+                        @Html.DropDownListFor(m => m.IdSitio, (List<SelectListItem>)ViewBag.Sitios, "-- Selecciona --", new { @class = "form-select", required = "required" })
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Fecha *</label>
+                        @Html.TextBoxFor(m => m.Fecha, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Turno *</label>
+                        @Html.DropDownListFor(m => m.Turno, new SelectList(turnos, Model.Turno), new { @class = "form-select" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Ox&iacute;geno disuelto (mg/L)</label>
+                        @Html.TextBoxFor(m => m.OxigenoDisueltoMgL, new { @class = "form-control", type = "number", step = "any", min = "0" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Turbidez (m)</label>
+                        @Html.TextBoxFor(m => m.TurbidezM, new { @class = "form-control", type = "number", step = "any", min = "0" })
+                    </div>
+                </div>
+
+                <label class="form-label fw-bold">Nutrientes <span class="text-muted fw-normal small">(deja vac&iacute;o si no se midi&oacute;, como el &laquo;-&raquo; del Excel)</span></label>
+                <div class="row">
+                    @for (int i = 0; i < nutrientes.Length; i++)
+                    {
+                        var n = nutrientes[i];
+                        double? v = (Model.Nutrientes != null && Model.Nutrientes.ContainsKey(n)) ? Model.Nutrientes[n] : null;
+                        <div class="col-6 col-md-4 mb-3">
+                            <label class="form-label small mb-1">@n</label>
+                            <input type="hidden" name="Nutrientes[@i].Key" value="@n" />
+                            <input type="number" step="any" min="0" class="form-control" name="Nutrientes[@i].Value"
+                                   value="@(v.HasValue ? v.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "")" />
+                        </div>
+                    }
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Observaciones</label>
+                    @Html.TextAreaFor(m => m.Observaciones, new { @class = "form-control", rows = 2, maxlength = 300 })
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

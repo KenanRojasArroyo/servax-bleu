@@ -1,6 +1,6 @@
-﻿@model List<Servax_bleu_unificacion.Models.CrecimientoAnual>
+﻿@model List<Servax_bleu_unificacion.Models.LecturaSensorCorral>
 @{
-    ViewBag.Title = "Crecimiento Anual";
+    ViewBag.Title = "Lecturas de Sensores";
 }
 
 <div class="container-fluid px-4 mt-4">
@@ -21,12 +21,13 @@
     }
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h4 class="fw-bold mb-0"><i class="fa-solid fa-chart-line text-primary me-2"></i>Crecimiento Anual</h4>
-        <a href="@Url.Action("Create")" class="btn btn-primary shadow-sm">
-            <i class="fa-solid fa-plus me-1"></i> Nuevo Registro
+        <h4 class="fw-bold mb-0"><i class="fa-solid fa-temperature-half text-primary me-2"></i>Lecturas de Sensores por Corral</h4>
+        <a href="@Url.Action("Create", new { idCorral = ViewBag.IdCorralFiltro })" class="btn btn-primary shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i> Nueva Lectura
         </a>
     </div>
 
+    <!-- Filtro por corral -->
     <form method="get" class="row g-2 mb-3">
         <div class="col-auto">
             <select name="idCorral" class="form-select" onchange="this.form.submit()">
@@ -44,41 +45,45 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-dark">
                     <tr>
-                        <th>A&ntilde;o</th>
                         <th>Corral</th>
-                        <th>Especie</th>
-                        <th>Peso Inicial (kg)</th>
-                        <th>Peso Final (kg)</th>
-                        <th>Tasa de Crecimiento (%)</th>
+                        <th>Fecha</th>
+                        <th>Profundidad</th>
+                        <th>M&eacute;todo</th>
+                        <th>Sensor</th>
+                        <th>Temp. (&deg;C)</th>
+                        <th>Ox&iacute;geno (mg/L)</th>
+                        <th>Saturaci&oacute;n O&#8322; (%)</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model != null && Model.Count > 0)
                     {
-                        foreach (var ca in Model)
+                        foreach (var l in Model)
                         {
                             <tr>
-                                <td class="fw-semibold">@ca.Anio</td>
-                                <td>@ca.NombreCorral</td>
-                                <td>@ca.NombreEspecie</td>
-                                <td>@(ca.PesoPromedioInicial?.ToString("N2") ?? "-")</td>
-                                <td>@(ca.PesoPromedioFinal?.ToString("N2") ?? "-")</td>
+                                <td class="fw-semibold">@l.NombreCorral</td>
+                                <td>@l.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@l.Profundidad.ToString("0.#") m</td>
                                 <td>
-                                    @if (ca.TasaCrecimiento != null)
+                                    @if (l.MetodoCaptura == "Sensor")
                                     {
-                                        <span class="badge bg-success">@ca.TasaCrecimiento.Value.ToString("N1")%</span>
+                                        <span class="badge bg-info text-dark"><i class="fa-solid fa-satellite-dish me-1"></i>Sensor</span>
                                     }
                                     else
                                     {
-                                        <span class="text-muted">-</span>
+                                        <span class="badge bg-secondary"><i class="fa-solid fa-hand me-1"></i>Manual</span>
                                     }
                                 </td>
-                                <td class="text-end">
-                                    <a href="@Url.Action("Edit", new { id = ca.IdCrecimiento })" class="btn btn-sm btn-outline-primary" title="Editar">
+                                <td>@(string.IsNullOrEmpty(l.NumeroSensor) ? "—" : (l.MarcaSensor + " " + l.NumeroSensor))</td>
+                                <td>@(l.Temperatura.HasValue ? l.Temperatura.Value.ToString("N1") : "-")</td>
+                                <td>@(l.OxigenoMgL.HasValue ? l.OxigenoMgL.Value.ToString("N2") : "-")</td>
+                                <td>@(l.SaturacionOxigenoPct.HasValue ? l.SaturacionOxigenoPct.Value.ToString("N1") : "-")</td>
+                                <td class="text-end text-nowrap">
+                                    <a href="@Url.Action("Edit", new { id = l.IdLectura })" class="btn btn-sm btn-outline-primary" title="Editar">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                    <a href="@Url.Action("Delete", new { id = ca.IdCrecimiento })" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <a href="@Url.Action("Delete", new { id = l.IdLectura })" class="btn btn-sm btn-outline-danger" title="Eliminar">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
                                 </td>
@@ -87,7 +92,7 @@
                     }
                     else
                     {
-                        <tr><td colspan="7" class="text-center text-muted py-4">No hay registros de crecimiento anual todav&iacute;a.</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-4">No hay lecturas registradas todav&iacute;a.</td></tr>
                     }
                 </tbody>
             </table>

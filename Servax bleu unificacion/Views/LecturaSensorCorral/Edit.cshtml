@@ -1,0 +1,118 @@
+﻿@model Servax_bleu_unificacion.Models.LecturaSensorCorral
+@{
+    ViewBag.Title = "Editar Lectura de Sensor";
+
+    // La hoja real solo maneja dos profundidades (3 m y 20 m).
+    var profundidades = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "3", Text = "3 m" },
+        new SelectListItem { Value = "20", Text = "20 m" }
+    };
+    var profActual = Model.Profundidad.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    if (Model.Profundidad > 0 && !profundidades.Any(p => p.Value == profActual))
+    {
+        profundidades.Add(new SelectListItem { Value = profActual, Text = profActual + " m" });
+    }
+    var metodos = new[] { "Sensor", "Manual" };
+}
+
+<div class="container-fluid px-4 mt-4">
+    <h4 class="fw-bold mb-4"><i class="fa-solid fa-pen text-primary me-2"></i>Editar Lectura de Sensor</h4>
+
+    <div class="alert alert-info small">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        <strong>Sensor</strong> = lectura autom&aacute;tica (AquaHub, BloopTracker...). <strong>Manual</strong> = dato tomado a mano.
+        No se puede repetir la misma combinaci&oacute;n corral + fecha + profundidad + m&eacute;todo.
+        Si temperatura u ox&iacute;geno salen fuera de rango, se dispara una alerta por correo.
+    </div>
+
+    <div class="card shadow-sm border-0" style="max-width: 700px;">
+        <div class="card-body p-4">
+            @using (Html.BeginForm("Edit", "LecturaSensorCorral", new { id = Model.IdLectura }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.IdLectura)
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Corral *</label>
+                        @Html.DropDownListFor(m => m.IdCorral, (List<SelectListItem>)ViewBag.Corrales, new { @class = "form-select", required = "required" })
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fecha *</label>
+                        @Html.TextBoxFor(m => m.Fecha, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", required = "required" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Profundidad *</label>
+                        @Html.DropDownListFor(m => m.Profundidad, profundidades, "-- Selecciona --", new { @class = "form-select", required = "required" })
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">M&eacute;todo de captura *</label>
+                        @Html.DropDownListFor(m => m.MetodoCaptura, new SelectList(metodos, Model.MetodoCaptura), new { @class = "form-select" })
+                    </div>
+                    <div class="col-md-4 mb-3" id="grupoSensor">
+                        <label class="form-label fw-bold">Sensor *</label>
+                        @Html.DropDownListFor(m => m.IdSensor, (List<SelectListItem>)ViewBag.Sensores, "-- Selecciona --", new { @class = "form-select" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Temperatura (&deg;C)</label>
+                        @Html.TextBoxFor(m => m.Temperatura, new { @class = "form-control", type = "number", step = "any" })
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Ox&iacute;geno (mg/L)</label>
+                        @Html.TextBoxFor(m => m.OxigenoMgL, new { @class = "form-control", type = "number", step = "any", min = "0" })
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold">Saturaci&oacute;n O&#8322; (%)</label>
+                        @Html.TextBoxFor(m => m.SaturacionOxigenoPct, new { @class = "form-control", type = "number", step = "any", min = "0" })
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Cambios</button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var corral = document.getElementById('IdCorral');
+        var sensor = document.getElementById('IdSensor');
+        var metodo = document.getElementById('MetodoCaptura');
+        var grupoSensor = document.getElementById('grupoSensor');
+        var urlSensores = '@Url.Action("ObtenerSensores", "LecturaSensorCorral")';
+
+        // El sensor solo aplica cuando la captura es automática.
+        function alternarSensor() {
+            grupoSensor.classList.toggle('d-none', metodo.value !== 'Sensor');
+        }
+
+        // Al cambiar de corral se recarga el combo con los sensores activos de ese corral.
+        function cargarSensores() {
+            sensor.innerHTML = '<option value="">-- Selecciona --</option>';
+            if (!corral.value) return;
+            fetch(urlSensores + '?idCorral=' + encodeURIComponent(corral.value), { credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (lista) {
+                    lista.forEach(function (s) {
+                        var o = document.createElement('option');
+                        o.value = s.Value;
+                        o.textContent = s.Text;
+                        sensor.appendChild(o);
+                    });
+                });
+        }
+
+        corral.addEventListener('change', cargarSensores);
+        metodo.addEventListener('change', alternarSensor);
+        alternarSensor();
+    })();
+</script>
