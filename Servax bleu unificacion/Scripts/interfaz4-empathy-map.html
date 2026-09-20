@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servax Bleu | Interfaz 4 — Empathy Map</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #f3f7fa; --bg-secondary: #eaf1f5; --surface: rgba(255,255,255,.78); --surface-solid: #ffffff;
+      --border: rgba(148,163,184,.28); --border-strong: rgba(8,123,158,.35); --text: #0f172a;
+      --text-secondary: #334155; --muted: #64748b; --ocean: #087b9e; --ocean-light: #1595bb;
+      --success: #059669; --warning: #d97706; --danger: #dc2626;
+      --shadow: 0 18px 50px -28px rgba(15,23,42,.28); --radius: 18px;
+    }
+    html.dark {
+      --bg: #07111e; --bg-secondary: #0a1727; --surface: rgba(13,28,46,.76); --surface-solid: #0d1c2e;
+      --border: rgba(148,163,184,.13); --border-strong: rgba(56,189,248,.30); --text: #f1f5f9;
+      --text-secondary: #cbd5e1; --muted: #94a3b8; --ocean: #38b8d8; --ocean-light: #7dd5eb;
+      --shadow: 0 25px 70px -30px rgba(0,0,0,.65);
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; color:var(--text); background:linear-gradient(135deg,var(--bg),var(--bg-secondary)); font-family:Inter,ui-sans-serif,system-ui,sans-serif; }
+    .glass { background:var(--surface); border:1px solid var(--border); backdrop-filter:blur(22px); box-shadow:var(--shadow); border-radius:var(--radius); }
+    input, textarea, select { width:100%; padding:.5rem .7rem; border-radius:.6rem; border:1px solid var(--border); background:var(--surface-solid); color:var(--text); font-size:.875rem; }
+    label { font-size:.75rem; font-weight:600; color:var(--muted); }
+    .btn { padding:.5rem 1rem; border-radius:.6rem; font-weight:600; font-size:.85rem; cursor:pointer; border:none; }
+    .btn-primary { background:var(--ocean); color:#fff; }
+    .btn-secondary { background:transparent; border:1px solid var(--border-strong); color:var(--ocean); }
+    .btn-sm { padding:.25rem .5rem; font-size:.7rem; border-radius:.4rem; }
+    .card-item { background:rgba(255,255,255,.6); border-radius:.6rem; padding:.5rem .7rem; margin-bottom:.4rem; font-size:.8rem; }
+    html.dark .card-item { background:rgba(255,255,255,.07); }
+    .quad { border-radius:14px; padding:1rem; min-height:170px; }
+    .quad h3 { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.5rem; }
+    .quad-dice { background:#e0f2fe; } html.dark .quad-dice { background:#0c3a55; }
+    .quad-hace { background:#dcfce7; } html.dark .quad-hace { background:#0b3d24; }
+    .quad-piensa { background:#fef3c7; } html.dark .quad-piensa { background:#4a3305; }
+    .quad-siente { background:#fce7f3; } html.dark .quad-siente { background:#4a0c2f; }
+    .intensidad-Alta { border-left:4px solid var(--danger); }
+    .intensidad-Media { border-left:4px solid var(--warning); }
+    .intensidad-Baja { border-left:4px solid var(--muted); }
+    .badge { font-size:.62rem; font-weight:700; padding:.08rem .45rem; border-radius:999px; text-transform:uppercase; }
+    .badge-alta { background:#fee2e2; color:#b91c1c; }
+    .badge-media { background:#fef3c7; color:#b45309; }
+    .badge-baja { background:#e2e8f0; color:#475569; }
+    .ruido-item { background:rgba(148,163,184,.15); border-radius:.5rem; padding:.4rem .6rem; margin-bottom:.4rem; font-size:.8rem; display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+  </style>
+</head>
+
+<body>
+  <header class="glass m-4 p-4 flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="text-lg font-bold" style="color:var(--ocean)">Interfaz 4 — Empathy Map ("The Parser")</h1>
+      <p class="text-sm" style="color:var(--muted)">Bandeja de ruido → cuadrícula 2×2 (Dice/Hace/Piensa/Siente) → generador de insights · Servax Bleu</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <a href="index.html" class="btn btn-secondary">← Suite</a>
+      <button id="btnExportJSON" class="btn btn-secondary">Exportar JSON</button>
+      <button id="btnExportCSV" class="btn btn-secondary">Exportar CSV</button>
+      <button id="btnThemeToggle" class="btn btn-secondary">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-10 grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+    <section class="glass p-5 lg:col-span-1">
+      <h2 class="font-bold mb-3" style="color:var(--ocean)">Nuevo mapa</h2>
+      <div class="space-y-2">
+        <div><label>Alias / sujeto</label><input id="inAlias" placeholder="Ej. Encargado de Corrales"></div>
+        <div><label>Contexto</label><textarea id="inContexto" rows="2"></textarea></div>
+        <div><label>Fecha</label><input id="inFecha" type="date"></div>
+        <button id="btnCrearMapa" class="btn btn-primary w-full mt-1">+ Crear mapa</button>
+      </div>
+      <div class="mt-6">
+        <h3 class="font-semibold text-sm mb-2" style="color:var(--muted)">Mapas registrados</h3>
+        <div id="listaMapas" class="space-y-2"></div>
+      </div>
+      <div id="resumenExamen" class="mt-4 p-3 rounded-lg text-xs"></div>
+    </section>
+
+    <section class="lg:col-span-3 space-y-4">
+      <div id="sinMapa" class="glass p-8 text-center" style="color:var(--muted)">
+        Selecciona o crea un mapa para trabajar la bandeja de ruido, la cuadrícula 2×2 y los insights.
+      </div>
+
+      <div id="panelMapa" class="hidden space-y-4">
+        <div class="glass p-4">
+          <h3 class="font-semibold text-sm mb-2" style="color:var(--ocean)">Bandeja de ruido cualitativo (sin procesar)</h3>
+          <form id="formRuido" class="flex gap-2 mb-2">
+            <input id="inRuido" placeholder="Pega aquí una frase suelta de la entrevista/observación" required>
+            <button class="btn btn-primary">+ Agregar</button>
+          </form>
+          <div id="listaRuido"></div>
+        </div>
+
+        <!-- Cuadrícula 2x2 obligatoria -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="quad quad-dice">
+            <h3 style="color:#075985">¿Qué Dice?</h3>
+            <div id="qDice"></div>
+            <form class="cuad-form flex gap-1 mt-2" data-cuad="dice"><input class="manualInput" placeholder="Agregar directo…"><button class="btn btn-sm btn-primary">+</button></form>
+          </div>
+          <div class="quad quad-hace">
+            <h3 style="color:#065f46">¿Qué Hace?</h3>
+            <div id="qHace"></div>
+            <form class="cuad-form flex gap-1 mt-2" data-cuad="hace"><input class="manualInput" placeholder="Agregar directo…"><button class="btn btn-sm btn-primary">+</button></form>
+          </div>
+          <div class="quad quad-piensa">
+            <h3 style="color:#92400e">¿Qué Piensa?</h3>
+            <div id="qPiensa"></div>
+            <form class="cuad-form flex gap-1 mt-2" data-cuad="piensa"><input class="manualInput" placeholder="Agregar directo…"><button class="btn btn-sm btn-primary">+</button></form>
+          </div>
+          <div class="quad quad-siente">
+            <h3 style="color:#9d174d">¿Qué Siente?</h3>
+            <div id="qSiente"></div>
+            <form class="flex gap-1 mt-2" id="formSiente">
+              <input id="inSienteTexto" class="flex-1" placeholder="Agregar directo…">
+              <select id="inSienteIntensidad" style="max-width:6.5rem"><option>Baja</option><option selected>Media</option><option>Alta</option></select>
+              <button class="btn btn-sm btn-primary">+</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="glass p-4">
+          <h3 class="font-semibold text-sm mb-2" style="color:var(--ocean)">Generador de Insights</h3>
+          <form id="formInsight" class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+            <input id="inInsightTexto" class="md:col-span-2" placeholder="Descripción del insight" required>
+            <select id="inInsightTipo"><option>Necesidad oculta</option><option>Requisito funcional</option><option>Restricción técnica</option><option>Carga cognitiva</option></select>
+            <select id="inInsightPrioridad"><option>Alta</option><option>Media</option><option>Baja</option></select>
+            <button class="btn btn-primary md:col-span-4">+ Agregar insight</button>
+          </form>
+          <div id="listaInsights"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="empathy-map-engine.js"></script>
+  <script>
+    let mapaActivoId = null;
+    MotorEmpathyMap.seedSiVacio();
+
+    document.getElementById('btnThemeToggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+
+    function renderResumen() {
+      const mapas = MotorEmpathyMap.listarMapas();
+      const ok = mapas.length >= 1 && mapas.some(m => m.dice.length && m.hace.length && m.piensa.length && m.siente.length);
+      const el = document.getElementById('resumenExamen');
+      el.className = 'mt-4 p-3 rounded-lg text-xs ' + (ok ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800');
+      el.innerHTML = `Mapas: <b>${mapas.length}</b>. Cuadrícula 2×2 con datos reales en los 4 cuadrantes: <b>${ok ? 'CUMPLIDO ✅' : 'PENDIENTE ⚠️'}</b>`;
+    }
+
+    function renderListaMapas() {
+      const cont = document.getElementById('listaMapas');
+      cont.innerHTML = MotorEmpathyMap.listarMapas().map(m => `
+        <div class="card-item cursor-pointer" onclick="seleccionarMapa(${m.id})" style="${mapaActivoId === m.id ? 'outline:2px solid var(--ocean)' : ''}">
+          <b>${m.alias}</b><br><span style="color:var(--muted)">${m.fecha || ''}</span>
+        </div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Sin mapas aún.</p>';
+      renderResumen();
+    }
+
+    function seleccionarMapa(id) {
+      mapaActivoId = id;
+      document.getElementById('sinMapa').classList.add('hidden');
+      document.getElementById('panelMapa').classList.remove('hidden');
+      renderPanel();
+      renderListaMapas();
+    }
+
+    function renderPanel() {
+      const m = MotorEmpathyMap.obtenerMapa(mapaActivoId);
+      if (!m) return;
+
+      document.getElementById('listaRuido').innerHTML = (m.bandejaRuido || []).map((r, i) => `
+        <div class="ruido-item">
+          <span>${r.asignado ? '✅' : '💬'} ${r.texto}</span>
+          ${r.asignado ? '' : `<span class="flex gap-1">
+            <button class="btn btn-sm btn-secondary" onclick="asignar(${i},'dice')">Dice</button>
+            <button class="btn btn-sm btn-secondary" onclick="asignar(${i},'hace')">Hace</button>
+            <button class="btn btn-sm btn-secondary" onclick="asignar(${i},'piensa')">Piensa</button>
+            <button class="btn btn-sm btn-secondary" onclick="asignar(${i},'siente')">Siente</button>
+          </span>`}
+        </div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Bandeja vacía.</p>';
+
+      const render = (arr, cuad) => (arr || []).map((it, i) => `
+        <div class="card-item ${it.intensidad ? 'intensidad-' + it.intensidad : ''}">
+          <div class="flex justify-between items-start gap-1">
+            <span>${it.texto}${it.intensidad ? ` <span class="badge badge-${it.intensidad.toLowerCase()}">${it.intensidad}</span>` : ''}</span>
+            <button class="btn-sm" style="color:var(--danger)" onclick="quitar('${cuad}',${i})">✕</button>
+          </div>
+        </div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Vacío.</p>';
+
+      document.getElementById('qDice').innerHTML = render(m.dice, 'dice');
+      document.getElementById('qHace').innerHTML = render(m.hace, 'hace');
+      document.getElementById('qPiensa').innerHTML = render(m.piensa, 'piensa');
+      document.getElementById('qSiente').innerHTML = render(m.siente, 'siente');
+
+      document.getElementById('listaInsights').innerHTML = (m.insights || []).map(ins => `
+        <div class="card-item flex justify-between items-start gap-2">
+          <span>${ins.texto} <span class="badge badge-${ins.prioridad.toLowerCase()}">${ins.tipo} · ${ins.prioridad}</span></span>
+          <button class="btn-sm" style="color:var(--danger)" onclick="quitarInsight(${ins.id})">✕</button>
+        </div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Sin insights aún.</p>';
+    }
+
+    function asignar(indiceRuido, cuad) {
+      const intensidad = cuad === 'siente' ? (prompt('Intensidad emocional: Baja / Media / Alta', 'Media') || 'Media') : undefined;
+      MotorEmpathyMap.asignarRuidoACuadrante(mapaActivoId, indiceRuido, cuad, intensidad);
+      renderPanel();
+    }
+    function quitar(cuad, indice) { MotorEmpathyMap.quitarItem(mapaActivoId, cuad, indice); renderPanel(); }
+    function quitarInsight(id) { MotorEmpathyMap.eliminarInsight(mapaActivoId, id); renderPanel(); }
+
+    document.getElementById('btnCrearMapa').addEventListener('click', () => {
+      const alias = document.getElementById('inAlias').value.trim();
+      if (!alias) return alert('El alias es obligatorio.');
+      const m = MotorEmpathyMap.crearMapa({
+        alias, contexto: document.getElementById('inContexto').value, fecha: document.getElementById('inFecha').value
+      });
+      ['inAlias', 'inContexto'].forEach(id => document.getElementById(id).value = '');
+      renderListaMapas();
+      seleccionarMapa(m.id);
+    });
+
+    document.getElementById('formRuido').addEventListener('submit', ev => {
+      ev.preventDefault();
+      MotorEmpathyMap.agregarRuido(mapaActivoId, document.getElementById('inRuido').value);
+      ev.target.reset();
+      renderPanel();
+    });
+
+    document.querySelectorAll('.cuad-form').forEach(f => f.addEventListener('submit', ev => {
+      ev.preventDefault();
+      const texto = f.querySelector('.manualInput').value.trim();
+      if (!texto) return;
+      MotorEmpathyMap.agregarItem(mapaActivoId, f.dataset.cuad, texto);
+      f.querySelector('.manualInput').value = '';
+      renderPanel();
+    }));
+
+    document.getElementById('formSiente').addEventListener('submit', ev => {
+      ev.preventDefault();
+      const texto = document.getElementById('inSienteTexto').value.trim();
+      if (!texto) return;
+      MotorEmpathyMap.agregarItem(mapaActivoId, 'siente', texto, document.getElementById('inSienteIntensidad').value);
+      document.getElementById('inSienteTexto').value = '';
+      renderPanel();
+    });
+
+    document.getElementById('formInsight').addEventListener('submit', ev => {
+      ev.preventDefault();
+      MotorEmpathyMap.agregarInsight(mapaActivoId, {
+        texto: document.getElementById('inInsightTexto').value,
+        tipo: document.getElementById('inInsightTipo').value,
+        prioridad: document.getElementById('inInsightPrioridad').value
+      });
+      ev.target.reset();
+      renderPanel();
+    });
+
+    document.getElementById('btnExportJSON').addEventListener('click', MotorEmpathyMap.exportarJSONArchivo);
+    document.getElementById('btnExportCSV').addEventListener('click', MotorEmpathyMap.exportarCSVArchivo);
+
+    renderListaMapas();
+    const primeros = MotorEmpathyMap.listarMapas();
+    if (primeros.length) seleccionarMapa(primeros[0].id);
+  </script>
+</body>
+</html>

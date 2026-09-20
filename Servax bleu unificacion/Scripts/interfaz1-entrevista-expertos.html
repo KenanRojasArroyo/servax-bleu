@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servax Bleu | Interfaz 1 — Entrevista a Expertos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg: #f3f7fa; --bg-secondary: #eaf1f5; --surface: rgba(255,255,255,.78); --surface-solid: #ffffff;
+      --border: rgba(148,163,184,.28); --border-strong: rgba(8,123,158,.35); --text: #0f172a;
+      --text-secondary: #334155; --muted: #64748b; --ocean: #087b9e; --ocean-light: #1595bb;
+      --success: #059669; --warning: #d97706; --danger: #dc2626;
+      --shadow: 0 18px 50px -28px rgba(15,23,42,.28); --radius: 18px;
+    }
+    html.dark {
+      --bg: #07111e; --bg-secondary: #0a1727; --surface: rgba(13,28,46,.76); --surface-solid: #0d1c2e;
+      --border: rgba(148,163,184,.13); --border-strong: rgba(56,189,248,.30); --text: #f1f5f9;
+      --text-secondary: #cbd5e1; --muted: #94a3b8; --ocean: #38b8d8; --ocean-light: #7dd5eb;
+      --shadow: 0 25px 70px -30px rgba(0,0,0,.65);
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; color:var(--text); background:linear-gradient(135deg,var(--bg),var(--bg-secondary)); font-family:Inter,ui-sans-serif,system-ui,sans-serif; }
+    .glass { background:var(--surface); border:1px solid var(--border); backdrop-filter:blur(22px); box-shadow:var(--shadow); border-radius:var(--radius); }
+    input, textarea, select { width:100%; padding:.5rem .7rem; border-radius:.6rem; border:1px solid var(--border); background:var(--surface-solid); color:var(--text); font-size:.875rem; }
+    label { font-size:.75rem; font-weight:600; color:var(--muted); }
+    .btn { padding:.5rem 1rem; border-radius:.6rem; font-weight:600; font-size:.85rem; cursor:pointer; border:none; }
+    .btn-primary { background:var(--ocean); color:#fff; }
+    .btn-secondary { background:transparent; border:1px solid var(--border-strong); color:var(--ocean); }
+    .btn-danger { background:transparent; color:var(--danger); font-size:.75rem; }
+    .card-item { background:rgba(255,255,255,.55); border-radius:.6rem; padding:.6rem .8rem; margin-bottom:.5rem; font-size:.85rem; }
+    html.dark .card-item { background:rgba(255,255,255,.06); }
+    .badge { font-size:.65rem; font-weight:700; padding:.1rem .5rem; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+    .badge-cita { background:#fef3c7; color:#b45309; }
+    .badge-experto { background:#dbeafe; color:#1d4ed8; }
+    .tab-panel { display:none; }
+    .tab-panel.activo { display:block; }
+    .tab-btn { padding:.4rem .9rem; border-radius:.5rem; font-size:.8rem; font-weight:600; cursor:pointer; border:1px solid var(--border); color:var(--muted); }
+    .tab-btn.activo { background:var(--ocean); color:#fff; border-color:var(--ocean); }
+  </style>
+</head>
+
+<body>
+  <header class="glass m-4 p-4 flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="text-lg font-bold" style="color:var(--ocean)">Interfaz 1 — Entrevista a Expertos</h1>
+      <p class="text-sm" style="color:var(--muted)">Perfil, guion dinámico con citas clave, mapa de complejidad técnica y riesgos · Servax Bleu</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <a href="index.html" class="btn btn-secondary">← Suite</a>
+      <button id="btnExportJSON" class="btn btn-secondary">Exportar JSON</button>
+      <button id="btnExportCSV" class="btn btn-secondary">Exportar CSV</button>
+      <button id="btnThemeToggle" class="btn btn-secondary">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Columna: crear entrevista + lista -->
+    <section class="glass p-5 lg:col-span-1">
+      <h2 class="font-bold mb-3" style="color:var(--ocean)">Nuevo perfil de experto</h2>
+      <div class="space-y-2">
+        <div><label>Alias</label><input id="inAlias" placeholder="Ej. Arian Castillo Luhrs"></div>
+        <div><label>Rol</label><input id="inRol" placeholder="Ej. Supervisora de Operaciones de Granja"></div>
+        <div><label>Dominio</label><input id="inDominio" placeholder="Ej. Operaciones de granja acuícola"></div>
+        <div><label>Organización</label><input id="inOrganizacion" value="Servax Bleu"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label>Años de experiencia</label><input id="inAnios" type="number" min="0"></div>
+          <div><label>Medio</label>
+            <select id="inMedio"><option>Presencial</option><option>Remoto</option></select>
+          </div>
+        </div>
+        <div><label>Fecha</label><input id="inFecha" type="date"></div>
+        <button id="btnCrearEntrevista" class="btn btn-primary w-full mt-1">+ Crear perfil</button>
+      </div>
+
+      <div class="mt-6">
+        <h3 class="font-semibold text-sm mb-2" style="color:var(--muted)">Expertos registrados</h3>
+        <div id="listaEntrevistas" class="space-y-2"></div>
+      </div>
+
+      <div id="resumenExamen" class="mt-4 p-3 rounded-lg text-xs"></div>
+    </section>
+
+    <!-- Columna: detalle de la entrevista seleccionada -->
+    <section class="lg:col-span-2 space-y-4">
+      <div id="sinEntrevista" class="glass p-8 text-center" style="color:var(--muted)">
+        Selecciona o crea un experto para capturar el guion, el mapa de complejidad técnica y los riesgos.
+      </div>
+
+      <div id="panelEntrevista" class="glass p-5 hidden">
+        <div id="cabeceraExperto" class="mb-4"></div>
+
+        <div class="flex gap-2 mb-4 flex-wrap">
+          <button class="tab-btn activo" data-tab="guion">Guion dinámico</button>
+          <button class="tab-btn" data-tab="mapa">Mapa de complejidad técnica</button>
+          <button class="tab-btn" data-tab="riesgos">Restricciones y riesgos</button>
+          <button class="tab-btn" data-tab="refs">Referencias y notas</button>
+        </div>
+
+        <!-- Guion -->
+        <div class="tab-panel activo" id="tab-guion">
+          <form id="formGuion" class="grid grid-cols-1 gap-2 mb-3">
+            <textarea id="guionPregunta" rows="2" placeholder="Pregunta" required></textarea>
+            <textarea id="guionRespuesta" rows="2" placeholder="Respuesta" required></textarea>
+            <label class="flex items-center gap-2"><input type="checkbox" id="guionCita" class="w-4 h-4"> Marcar como cita textual clave</label>
+            <button class="btn btn-primary">+ Agregar par pregunta/respuesta</button>
+          </form>
+          <div id="listaGuion"></div>
+        </div>
+
+        <!-- Mapa de complejidad -->
+        <div class="tab-panel" id="tab-mapa">
+          <div class="space-y-3">
+            <div><label>Conceptos clave</label><textarea id="mapaConceptos" rows="2"></textarea></div>
+            <div><label>Jerga del dominio</label><textarea id="mapaJerga" rows="2"></textarea></div>
+            <div><label>Dependencias entre componentes</label><textarea id="mapaDependencias" rows="2"></textarea></div>
+            <div><label>Actores del ecosistema</label><textarea id="mapaActores" rows="2"></textarea></div>
+            <button id="btnGuardarMapa" class="btn btn-primary">Guardar mapa de complejidad</button>
+          </div>
+        </div>
+
+        <!-- Riesgos -->
+        <div class="tab-panel" id="tab-riesgos">
+          <form id="formRiesgo" class="flex gap-2 mb-3">
+            <input id="inRiesgo" placeholder="Restricción o riesgo técnico señalado por el experto" required>
+            <button class="btn btn-primary">+ Agregar</button>
+          </form>
+          <div id="listaRiesgos"></div>
+        </div>
+
+        <!-- Referencias y notas -->
+        <div class="tab-panel" id="tab-refs">
+          <form id="formRef" class="flex gap-2 mb-3">
+            <input id="inRef" placeholder="Referencia / fuente" required>
+            <button class="btn btn-primary">+ Agregar</button>
+          </form>
+          <div id="listaRefs" class="mb-4"></div>
+          <label>Notas y siguientes pasos</label>
+          <textarea id="inNotas" rows="4"></textarea>
+          <button id="btnGuardarNotas" class="btn btn-secondary mt-2">Guardar notas</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="investigacion-motor-base.js"></script>
+  <script src="entrevista-expertos-engine.js"></script>
+  <script>
+    let entrevistaActivaId = null;
+    MotorEntrevistaExpertos.seedSiVacio();
+
+    document.getElementById('btnThemeToggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('activo'));
+      btn.classList.add('activo');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('activo');
+    }));
+
+    function renderResumen() {
+      const r = MotorEntrevistaExpertos.resumenGeneral();
+      const el = document.getElementById('resumenExamen');
+      const ok = r.totalEntrevistas >= 1;
+      el.className = 'mt-4 p-3 rounded-lg text-xs ' + (ok ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800');
+      el.innerHTML = `Expertos: <b>${r.totalEntrevistas}</b> · Citas clave marcadas: <b>${r.totalCitasClave}</b>.
+        Mínimo del examen (1 experto de dominio): <b>${ok ? 'CUMPLIDO ✅' : 'PENDIENTE ⚠️'}</b>`;
+    }
+
+    function renderListaEntrevistas() {
+      const cont = document.getElementById('listaEntrevistas');
+      const registros = MotorEntrevistaExpertos.listarEntrevistas();
+      cont.innerHTML = registros.map(e => `
+        <div class="card-item flex justify-between items-center cursor-pointer" onclick="seleccionarEntrevista(${e.id})" style="${entrevistaActivaId === e.id ? 'outline:2px solid var(--ocean)' : ''}">
+          <div><b>${e.alias || '(sin alias)'}</b><br><span style="color:var(--muted)">${e.rol || ''}</span></div>
+          <button class="btn-danger" onclick="event.stopPropagation(); eliminarEntrevista(${e.id})">Eliminar</button>
+        </div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Sin registros aún.</p>';
+      renderResumen();
+    }
+
+    function seleccionarEntrevista(id) {
+      entrevistaActivaId = id;
+      document.getElementById('sinEntrevista').classList.add('hidden');
+      document.getElementById('panelEntrevista').classList.remove('hidden');
+      renderPanel();
+      renderListaEntrevistas();
+    }
+
+    function eliminarEntrevista(id) {
+      MotorEntrevistaExpertos.eliminarEntrevista(id);
+      if (entrevistaActivaId === id) {
+        entrevistaActivaId = null;
+        document.getElementById('panelEntrevista').classList.add('hidden');
+        document.getElementById('sinEntrevista').classList.remove('hidden');
+      }
+      renderListaEntrevistas();
+    }
+
+    function renderPanel() {
+      const e = MotorEntrevistaExpertos.obtenerEntrevista(entrevistaActivaId);
+      if (!e) return;
+      document.getElementById('cabeceraExperto').innerHTML = `
+        <h2 class="font-bold text-lg" style="color:var(--ocean)">${e.alias} <span class="badge badge-experto">${e.rol || 'Experto'}</span></h2>
+        <p class="text-sm" style="color:var(--muted)">${e.dominio || ''} · ${e.organizacion || ''} · ${e.aniosExperiencia ?? '?'} años · ${e.medio || ''} · ${e.fecha || ''}</p>`;
+
+      document.getElementById('listaGuion').innerHTML = (e.guion || []).map((g, i) => `
+        <div class="card-item">
+          <div class="flex justify-between items-start gap-2">
+            <div><b>P:</b> ${g.pregunta}<br><b>R:</b> ${g.respuesta} ${g.citaClave ? '<span class="badge badge-cita">Cita clave</span>' : ''}</div>
+          </div>
+        </div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Sin preguntas aún.</p>';
+
+      const mc = e.mapaComplejidadTecnica || {};
+      document.getElementById('mapaConceptos').value = mc.conceptos || '';
+      document.getElementById('mapaJerga').value = mc.jerga || '';
+      document.getElementById('mapaDependencias').value = mc.dependencias || '';
+      document.getElementById('mapaActores').value = mc.actores || '';
+
+      document.getElementById('listaRiesgos').innerHTML = (e.restriccionesRiesgos || []).map(r => `<div class="card-item">⚠️ ${r}</div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Sin riesgos registrados.</p>';
+      document.getElementById('listaRefs').innerHTML = (e.referencias || []).map(r => `<div class="card-item">📎 ${r}</div>`).join('') || '<p class="text-xs" style="color:var(--muted)">Sin referencias.</p>';
+      document.getElementById('inNotas').value = e.notas || '';
+    }
+
+    document.getElementById('btnCrearEntrevista').addEventListener('click', () => {
+      const alias = document.getElementById('inAlias').value.trim();
+      if (!alias) return alert('El alias es obligatorio.');
+      const e = MotorEntrevistaExpertos.crearEntrevista({
+        alias,
+        rol: document.getElementById('inRol').value,
+        dominio: document.getElementById('inDominio').value,
+        organizacion: document.getElementById('inOrganizacion').value,
+        aniosExperiencia: Number(document.getElementById('inAnios').value) || 0,
+        medio: document.getElementById('inMedio').value,
+        fecha: document.getElementById('inFecha').value
+      });
+      ['inAlias', 'inRol', 'inDominio', 'inAnios'].forEach(id => document.getElementById(id).value = '');
+      renderListaEntrevistas();
+      seleccionarEntrevista(e.id);
+    });
+
+    document.getElementById('formGuion').addEventListener('submit', ev => {
+      ev.preventDefault();
+      MotorEntrevistaExpertos.agregarPreguntaRespuesta(entrevistaActivaId, {
+        pregunta: document.getElementById('guionPregunta').value,
+        respuesta: document.getElementById('guionRespuesta').value,
+        citaClave: document.getElementById('guionCita').checked
+      });
+      ev.target.reset();
+      renderPanel();
+    });
+
+    document.getElementById('btnGuardarMapa').addEventListener('click', () => {
+      ['conceptos', 'jerga', 'dependencias', 'actores'].forEach(campo => {
+        MotorEntrevistaExpertos.actualizarMapaComplejidad(entrevistaActivaId, campo, document.getElementById('mapa' + campo[0].toUpperCase() + campo.slice(1)).value);
+      });
+      renderPanel();
+    });
+
+    document.getElementById('formRiesgo').addEventListener('submit', ev => {
+      ev.preventDefault();
+      MotorEntrevistaExpertos.agregarRestriccionRiesgo(entrevistaActivaId, document.getElementById('inRiesgo').value);
+      ev.target.reset();
+      renderPanel();
+    });
+
+    document.getElementById('formRef').addEventListener('submit', ev => {
+      ev.preventDefault();
+      MotorEntrevistaExpertos.agregarReferencia(entrevistaActivaId, document.getElementById('inRef').value);
+      ev.target.reset();
+      renderPanel();
+    });
+
+    document.getElementById('btnGuardarNotas').addEventListener('click', () => {
+      MotorEntrevistaExpertos.editarEntrevista(entrevistaActivaId, { notas: document.getElementById('inNotas').value });
+    });
+
+    document.getElementById('btnExportJSON').addEventListener('click', MotorEntrevistaExpertos.exportarJSONArchivo);
+    document.getElementById('btnExportCSV').addEventListener('click', MotorEntrevistaExpertos.exportarCSVArchivo);
+
+    renderListaEntrevistas();
+    const primeros = MotorEntrevistaExpertos.listarEntrevistas();
+    if (primeros.length) seleccionarEntrevista(primeros[0].id);
+  </script>
+</body>
+</html>
