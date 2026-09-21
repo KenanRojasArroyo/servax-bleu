@@ -20,16 +20,16 @@ persistencia en `localStorage` del navegador y exportación a `.json` / `.csv`.
 
 ## 2. Instalación / ejecución
 
-Todos los archivos viven en la carpeta `Scripts/` del repositorio principal.
+Todos los archivos viven en la carpeta `Scripts/interfaces/` del repositorio principal.
 
 **Opción A — abrir directo (más simple):**
-1. Ir a `Scripts/`.
+1. Ir a `Scripts/interfaces/`.
 2. Abrir `index.html` con doble clic (o "Abrir con → navegador").
 3. Navegar entre las 6 interfaces desde las tarjetas del menú.
 
 **Opción B — servidor local (recomendado si el navegador bloquea `file://`):**
 ```bash
-cd "Servax bleu unificacion/Servax bleu unificacion/Scripts"
+cd "Servax bleu unificacion/Servax bleu unificacion/Scripts/interfaces"
 python -m http.server 8080
 # luego abrir http://localhost:8080/index.html
 ```
@@ -39,7 +39,7 @@ No hay paso de compilación: cualquier edición a los `.html` o `.js` se ve al r
 ## 3. Estructura de archivos
 
 ```
-Scripts/
+Scripts/interfaces/
 ├── index.html                          # Menú de navegación de la suite (con toggle 🌓)
 ├── interfaz1-entrevista-expertos.html  # Interfaz 1 — Entrevista a Expertos
 ├── interfaz2-usuarios-extremos.html    # Interfaz 2 — Usuarios Extremos
@@ -118,7 +118,7 @@ exportar a JSON/CSV con frecuencia como respaldo antes de la demo en vivo.
 | No cargan estilos / se ve sin diseño | Sin Internet (Tailwind/Chart.js son CDN) | Verificar conexión o servir localmente con acceso a Internet |
 | La rueda de la Interfaz 5 no aparece | Chart.js no cargó | Revisar la consola del navegador y la conexión a `cdn.jsdelivr.net` |
 | Los datos capturados "desaparecieron" | Se abrió en otro navegador/perfil o se limpió `localStorage` | Restaurar desde el último JSON exportado |
-| Un botón "← Suite" no regresa | El archivo se abrió suelto, fuera de `Scripts/` | Ejecutar siempre desde dentro de la carpeta `Scripts/` |
+| Un botón "← Suite" no regresa | El archivo se abrió suelto, fuera de `Scripts/interfaces/` | Ejecutar siempre desde dentro de la carpeta `Scripts/interfaces/` |
 
 ---
 
