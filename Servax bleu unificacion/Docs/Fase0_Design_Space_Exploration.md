@@ -1,6 +1,6 @@
 # Fase 0 — Design Space Exploration
 
-## Necesidades
+## Divergencia
 
 ### Necesidades obvias
 1. **Centralizar la información de las tres áreas** para facilitar el intercambio de datos entre granja, control de calidad y alimentación. *(Fuente: entrevista con Arian Castillo Luhrs, Supervisora de Operaciones de Granja, 18 ago 2026)*
