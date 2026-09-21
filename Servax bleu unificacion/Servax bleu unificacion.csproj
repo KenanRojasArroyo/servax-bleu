@@ -310,17 +310,20 @@
     <Content Include="Docs\Fase5_Experience_Stack.md" />
     <Content Include=".editorconfig" />
     <Content Include="Docs\README_investigacion.md" />
+    <Content Include="Docs\Fase3_Algoritmos_de_Atencion.md" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\dashboard-charts.js" />
-    <Content Include="Scripts\empathy-map-engine.js" />
-    <Content Include="Scripts\entrevista-expertos-engine.js" />
-    <Content Include="Scripts\index.html" />
-    <Content Include="Scripts\interfaz1-entrevista-expertos.html" />
-    <Content Include="Scripts\interfaz2-usuarios-extremos.html" />
-    <Content Include="Scripts\interfaz3-needfinding-iceberg.html" />
-    <Content Include="Scripts\interfaz4-empathy-map.html" />
-    <Content Include="Scripts\InterfazesComb%285-6%29.html" />
-    <Content Include="Scripts\investigacion-motor-base.js" />
+    <Content Include="Scripts\interfaces\empathy-map-engine.js" />
+    <Content Include="Scripts\interfaces\entrevista-expertos-engine.js" />
+    <Content Include="Scripts\interfaces\index.html" />
+    <Content Include="Scripts\interfaces\interfaz1-entrevista-expertos.html" />
+    <Content Include="Scripts\interfaces\interfaz2-usuarios-extremos.html" />
+    <Content Include="Scripts\interfaces\interfaz3-needfinding-iceberg.html" />
+    <Content Include="Scripts\interfaces\interfaz4-empathy-map.html" />
+    <Content Include="Scripts\interfaces\Interfaz5-roper-dynagram.html" />
+    <Content Include="Scripts\interfaces\Interfaz6-mapeo-requerimientos.html" />
+    <Content Include="Scripts\interfaces\InterfazesComb%285-6%29.html" />
+    <Content Include="Scripts\interfaces\investigacion-motor-base.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
     <Content Include="Scripts\jquery-3.7.0.slim.js" />
@@ -331,10 +334,10 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
-    <Content Include="Scripts\observacion-directa-engine.js" />
-    <Content Include="Scripts\requisitos-engine.js" />
-    <Content Include="Scripts\roper-dynagram-engine.js" />
-    <Content Include="Scripts\usuarios-extremos-engine.js" />
+    <Content Include="Scripts\interfaces\observacion-directa-engine.js" />
+    <Content Include="Scripts\interfaces\requisitos-engine.js" />
+    <Content Include="Scripts\interfaces\roper-dynagram-engine.js" />
+    <Content Include="Scripts\interfaces\usuarios-extremos-engine.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -400,6 +403,7 @@
     <Content Include="Views\MuestreoAbiotico\Delete.cshtml" />
     <Content Include="Views\MuestreoAbiotico\Edit.cshtml" />
     <Content Include="Views\MuestreoAbiotico\Index.cshtml" />
+    <Content Include="Scripts\interfaces\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

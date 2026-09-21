@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servax Bleu | Interfaz 5 — Roper Dynagram</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #f3f7fa; --bg-secondary: #eaf1f5;
+      --surface: rgba(255,255,255,.78); --surface-solid:#fff;
+      --border: rgba(148,163,184,.28); --border-strong: rgba(8,123,158,.35);
+      --text:#0f172a; --muted:#64748b;
+      --ocean:#087b9e; --ocean-light:#1595bb;
+      --success:#059669; --warning:#d97706; --danger:#dc2626;
+      --shadow: 0 18px 50px -28px rgba(15,23,42,.28); --radius:18px;
+    }
+    html.dark {
+      --bg:#07111e; --bg-secondary:#0a1727; --surface: rgba(13,28,46,.76); --surface-solid:#0d1c2e;
+      --border: rgba(148,163,184,.13); --border-strong: rgba(56,189,248,.30);
+      --text:#f1f5f9; --muted:#94a3b8; --ocean:#38b8d8; --ocean-light:#7dd5eb;
+      --shadow: 0 25px 70px -30px rgba(0,0,0,.65);
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; color:var(--text); font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: linear-gradient(135deg, var(--bg), var(--bg-secondary)); }
+    .glass { background:var(--surface); border:1px solid var(--border); backdrop-filter: blur(22px);
+      box-shadow: var(--shadow); border-radius: var(--radius); }
+    input, textarea, select { width:100%; padding:.5rem .7rem; border-radius:.6rem; border:1px solid var(--border);
+      background:var(--surface-solid); color:var(--text); font-size:.85rem; }
+    label { font-size:.72rem; font-weight:600; color:var(--muted); }
+    .btn { padding:.5rem 1rem; border-radius:.6rem; font-weight:600; font-size:.82rem; cursor:pointer; border:none; }
+    .btn-primary { background:var(--ocean); color:#fff; }
+    .btn-secondary { background:transparent; border:1px solid var(--border-strong); color:var(--ocean); }
+    .btn-danger { background:transparent; color:var(--danger); font-size:.72rem; }
+    .card-item { background:rgba(255,255,255,.55); border-radius:.6rem; padding:.6rem .8rem; margin-bottom:.5rem; font-size:.82rem; }
+    html.dark .card-item { background: rgba(255,255,255,.06); }
+  </style>
+</head>
+
+<body>
+
+  <header class="glass m-4 p-4 flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="text-lg font-bold" style="color:var(--ocean)">Interfaz 5 — Roper Dynagram</h1>
+      <p class="text-sm" style="color:var(--muted)">Segmentación por valores (Realists / Open Minded / Adventurers / Organics) con rueda que recalcula % automáticamente · Servax Bleu</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <a href="index.html" class="btn btn-secondary">← Suite</a>
+      <button id="btnThemeToggle" class="btn btn-secondary">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <section class="glass p-5 lg:col-span-1">
+      <h2 class="font-bold mb-1" style="color:var(--ocean)">Asignar usuario a segmento</h2>
+      <p class="text-xs mb-3" style="color:var(--muted)">Solo usuarios reales entrevistados/observados, con evidencia — no se acepta una asignación sin ella.</p>
+      <div class="space-y-2">
+        <div><label>Alias del usuario</label><input id="r_alias" placeholder="Ej. Arian C., Operador Corral 3"></div>
+        <div><label>Segmento (Roper)</label>
+          <select id="r_segmento">
+            <option value="Realists">Realists</option>
+            <option value="Open Minded">Open Minded</option>
+            <option value="Adventurers">Adventurers</option>
+            <option value="Organics">Organics</option>
+          </select>
+        </div>
+        <div><label>Evidencia (cita o comportamiento observado)</label><textarea id="r_evidencia" rows="3" placeholder="Ej. 'Prefiero ver todo en Excel, así lo controlo yo'"></textarea></div>
+        <div><label>Fuente</label><input id="r_fuente" placeholder="Entrevista 18/ago · Observación 24/sep..."></div>
+        <div class="flex gap-3 text-xs" style="color:var(--muted)">
+          <label class="flex items-center gap-1"><input type="checkbox" id="r_extremo" style="width:auto"> Usuario extremo</label>
+          <label class="flex items-center gap-1"><input type="checkbox" id="r_experto" style="width:auto"> Experto de dominio</label>
+        </div>
+        <button class="btn btn-primary w-full" onclick="agregarUsuarioRoper()">+ Asignar usuario</button>
+      </div>
+
+      <div id="coberturaRoper" class="mt-4 p-3 rounded-lg text-xs"></div>
+
+      <h3 class="font-semibold text-sm mt-5 mb-2" style="color:var(--muted)">Usuarios asignados</h3>
+      <div id="listaUsuariosRoper" class="max-h-72 overflow-y-auto"></div>
+
+      <div class="flex gap-2 mt-4">
+        <button class="btn btn-secondary flex-1" onclick="MotorRoperDynagram.exportarJSONArchivo()">Exportar JSON</button>
+        <button class="btn btn-secondary flex-1" onclick="MotorRoperDynagram.exportarCSVArchivo()">Exportar CSV</button>
+      </div>
+    </section>
+
+    <section class="glass p-5 lg:col-span-2">
+      <h2 class="font-bold mb-3" style="color:var(--ocean)">Rueda de segmentación (recalcula en vivo)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div style="max-width:340px; margin:0 auto"><canvas id="chartRoper"></canvas></div>
+        <div>
+          <p class="text-xs mb-2" style="color:var(--muted)">Clic en un segmento de la lista para ver su panel UX:</p>
+          <div id="botonesSegmento" class="flex flex-wrap gap-2 mb-3"></div>
+          <div id="panelSegmento" class="card-item"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Motor real -->
+  <script src="roper-dynagram-engine.js"></script>
+
+  <script>
+    document.getElementById('btnThemeToggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+
+    let chartRoper = null;
+
+    function renderRoper() {
+      const rueda = MotorRoperDynagram.calcularRueda();
+      const cobertura = MotorRoperDynagram.resumenCobertura();
+
+      // Doughnut chart real, derivado 100% de calcularRueda()
+      const ctx = document.getElementById('chartRoper');
+      const data = { labels: rueda.map(r => `${r.segmento} (${r.porcentaje}%)`), datasets: [{
+        data: rueda.map(r => r.cantidad),
+        backgroundColor: ['#087b9e', '#1595bb', '#38b8d8', '#7dd5eb']
+      }] };
+      if (chartRoper) { chartRoper.data = data; chartRoper.update(); }
+      else { chartRoper = new Chart(ctx, { type: 'doughnut', data, options: { plugins: { legend: { position: 'bottom' } } } }); }
+
+      // Banner de cobertura del mínimo del examen
+      const banner = document.getElementById('coberturaRoper');
+      banner.className = 'mt-4 p-3 rounded-lg text-xs ' + (cobertura.cumpleMinimoExamen ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800');
+      banner.innerHTML = `${cobertura.totalUsuarios} usuarios asignados · extremo: ${cobertura.cubreExtremo ? '✅' : '⚠️ falta'} · experto: ${cobertura.cubreExperto ? '✅' : '⚠️ falta'}`;
+
+      // Lista de usuarios
+      const lista = document.getElementById('listaUsuariosRoper');
+      lista.innerHTML = '';
+      MotorRoperDynagram.listarUsuarios().forEach(u => {
+        const d = document.createElement('div');
+        d.className = 'card-item';
+        d.innerHTML = `<div class="flex justify-between"><b>${u.alias}</b><button class="btn-danger" onclick="eliminarUsuarioRoper(${u.id})">✕</button></div>
+          <div class="text-xs" style="color:var(--muted)">${u.segmento} ${u.esUsuarioExtremo ? '· extremo' : ''} ${u.esExperto ? '· experto' : ''}</div>
+          <div class="text-xs mt-1">"${u.evidencia}"</div>`;
+        lista.appendChild(d);
+      });
+
+      // Botones de segmento -> panel UX
+      const botones = document.getElementById('botonesSegmento');
+      botones.innerHTML = '';
+      MotorRoperDynagram.SEGMENTOS.forEach(seg => {
+        const b = document.createElement('button');
+        b.className = 'btn btn-secondary';
+        b.textContent = seg;
+        b.onclick = () => mostrarPanelSegmento(seg);
+        botones.appendChild(b);
+      });
+      if (rueda.some(r => r.cantidad > 0)) {
+        mostrarPanelSegmento(rueda.slice().sort((a, b) => b.cantidad - a.cantidad)[0].segmento);
+      }
+    }
+
+    function mostrarPanelSegmento(segmento) {
+      const perfil = MotorRoperDynagram.PERFIL_SEGMENTO[segmento];
+      document.getElementById('panelSegmento').innerHTML = `
+        <b>${segmento}</b>
+        <div class="text-xs mt-1"><b>Requisito UX:</b> ${perfil.requisitoUX}</div>
+        <div class="text-xs mt-1"><b>Funcionalidad:</b> ${perfil.funcionalidad}</div>
+        <div class="text-xs mt-1"><b>Tono:</b> ${perfil.tono}</div>`;
+    }
+
+    function agregarUsuarioRoper() {
+      const alias = document.getElementById('r_alias').value.trim();
+      const segmento = document.getElementById('r_segmento').value;
+      const evidencia = document.getElementById('r_evidencia').value.trim();
+      const fuente = document.getElementById('r_fuente').value.trim();
+      const esUsuarioExtremo = document.getElementById('r_extremo').checked;
+      const esExperto = document.getElementById('r_experto').checked;
+      try {
+        MotorRoperDynagram.asignarUsuario({ alias, segmento, evidencia, fuente, esUsuarioExtremo, esExperto });
+        document.getElementById('r_alias').value = '';
+        document.getElementById('r_evidencia').value = '';
+        document.getElementById('r_fuente').value = '';
+        document.getElementById('r_extremo').checked = false;
+        document.getElementById('r_experto').checked = false;
+        renderRoper();
+      } catch (e) { alert(e.message); }
+    }
+
+    function eliminarUsuarioRoper(id) {
+      MotorRoperDynagram.eliminarUsuario(id);
+      renderRoper();
+    }
+
+    // Init
+    renderRoper();
+  </script>
+</body>
+</html>

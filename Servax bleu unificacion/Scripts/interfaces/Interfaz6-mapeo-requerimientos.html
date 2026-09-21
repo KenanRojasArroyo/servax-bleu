@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servax Bleu | Interfaz 6 — Mapeo de Requerimientos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --bg: #f3f7fa; --bg-secondary: #eaf1f5;
+      --surface: rgba(255,255,255,.78); --surface-solid:#fff;
+      --border: rgba(148,163,184,.28); --border-strong: rgba(8,123,158,.35);
+      --text:#0f172a; --muted:#64748b;
+      --ocean:#087b9e; --ocean-light:#1595bb;
+      --success:#059669; --warning:#d97706; --danger:#dc2626;
+      --shadow: 0 18px 50px -28px rgba(15,23,42,.28); --radius:18px;
+    }
+    html.dark {
+      --bg:#07111e; --bg-secondary:#0a1727; --surface: rgba(13,28,46,.76); --surface-solid:#0d1c2e;
+      --border: rgba(148,163,184,.13); --border-strong: rgba(56,189,248,.30);
+      --text:#f1f5f9; --muted:#94a3b8; --ocean:#38b8d8; --ocean-light:#7dd5eb;
+      --shadow: 0 25px 70px -30px rgba(0,0,0,.65);
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; color:var(--text); font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: linear-gradient(135deg, var(--bg), var(--bg-secondary)); }
+    .glass { background:var(--surface); border:1px solid var(--border); backdrop-filter: blur(22px);
+      box-shadow: var(--shadow); border-radius: var(--radius); }
+    input, textarea, select { width:100%; padding:.5rem .7rem; border-radius:.6rem; border:1px solid var(--border);
+      background:var(--surface-solid); color:var(--text); font-size:.85rem; }
+    label { font-size:.72rem; font-weight:600; color:var(--muted); }
+    .btn { padding:.5rem 1rem; border-radius:.6rem; font-weight:600; font-size:.82rem; cursor:pointer; border:none; }
+    .btn-primary { background:var(--ocean); color:#fff; }
+    .btn-secondary { background:transparent; border:1px solid var(--border-strong); color:var(--ocean); }
+    .card-item { background:rgba(255,255,255,.55); border-radius:.6rem; padding:.6rem .8rem; margin-bottom:.5rem; font-size:.82rem; }
+    html.dark .card-item { background: rgba(255,255,255,.06); }
+    .badge { font-size:.65rem; font-weight:700; padding:.1rem .5rem; border-radius:999px; text-transform:uppercase; }
+    .badge-ok { background:#d1fae5; color:#065f46; }
+    .badge-warn { background:#fef3c7; color:#92400e; }
+    table { width:100%; border-collapse: collapse; font-size:.82rem; }
+    th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--border); }
+    th { color: var(--muted); font-weight:600; font-size:.72rem; text-transform:uppercase; }
+    tr.trazable-row { cursor:pointer; }
+    tr.trazable-row:hover { background: rgba(8,123,158,.06); }
+  </style>
+</head>
+
+<body>
+
+  <header class="glass m-4 p-4 flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="text-lg font-bold" style="color:var(--ocean)">Interfaz 6 — Mapeo de Requerimientos (Obligatoria)</h1>
+      <p class="text-sm" style="color:var(--muted)">Trazabilidad Insight → Requisito Funcional → Requisito UX → Prioridad → Estado, con "ley embebida" de recálculo automático · Servax Bleu</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <a href="index.html" class="btn btn-secondary">← Suite</a>
+      <button id="btnThemeToggle" class="btn btn-secondary">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-10 space-y-4">
+
+    <div class="glass p-4 flex items-center justify-between flex-wrap gap-2">
+      <div>
+        <span id="estadoSemilla" class="badge badge-warn">Sin requisitos cargados</span>
+        <span class="text-xs ml-2" style="color:var(--muted)">Semilla actual: placeholder — reemplazar con el RF-01..RF-21/RNF-01..RNF-07 real cuando Ximena lo exporte.</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary" onclick="RequisitosEngine.exportarJSONArchivo()">Exportar JSON</button>
+        <button class="btn btn-secondary" onclick="RequisitosEngine.exportarCSVArchivo()">Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <section class="glass p-5 lg:col-span-1">
+        <h2 class="font-bold mb-2" style="color:var(--ocean)">Nuevo Insight</h2>
+        <div class="space-y-2">
+          <select id="i_fuente">
+            <option>Entrevista</option><option>Observación</option>
+            <option>Usuario extremo</option><option>Experto de dominio</option>
+          </select>
+          <input id="i_usuario" placeholder="Usuario/alias fuente">
+          <textarea id="i_texto" rows="2" placeholder="Qué se observó/dijo"></textarea>
+          <div class="grid grid-cols-2 gap-2">
+            <div><label>Urgencia (1-5)</label><input id="i_urgencia" type="number" min="1" max="5" value="3"></div>
+            <div><label>Impacto (1-5)</label><input id="i_impacto" type="number" min="1" max="5" value="3"></div>
+          </div>
+          <button class="btn btn-primary w-full" onclick="agregarInsight()">+ Agregar insight</button>
+        </div>
+
+        <h3 class="font-semibold text-sm mt-5 mb-2" style="color:var(--muted)">Insights registrados</h3>
+        <div id="listaInsights" class="max-h-64 overflow-y-auto"></div>
+      </section>
+
+      <section class="glass p-5 lg:col-span-2">
+        <h2 class="font-bold mb-1" style="color:var(--ocean)">Trazabilidad: Insight → Requisito → Prioridad → Estado</h2>
+        <p class="text-xs mb-3" style="color:var(--muted)">Clic en una fila para vincular el insight seleccionado y ver cómo se recalcula la prioridad.</p>
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr><th>Código</th><th>Descripción</th><th>Base</th><th>Calculada</th><th># Insights</th><th>Decisión</th></tr></thead>
+            <tbody id="tablaRequisitos"></tbody>
+          </table>
+        </div>
+
+        <div id="detalleRequisito" class="mt-4 card-item hidden"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Motor real -->
+  <script src="requisitos-engine.js"></script>
+
+  <script>
+    document.getElementById('btnThemeToggle').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+
+    // Semilla PLACEHOLDER — reemplazar con RF-01..RF-21 / RNF-01..RNF-07 reales.
+    const SEMILLA_PLACEHOLDER = [
+      { codigo: 'RF-01', descripcion: '[PLACEHOLDER] Módulo de IA Text-to-SQL', tipo: 'Funcional', prioridadBase: 4 },
+      { codigo: 'RF-02', descripcion: '[PLACEHOLDER] Importación masiva de Excel', tipo: 'Funcional', prioridadBase: 3 },
+      { codigo: 'RF-03', descripcion: '[PLACEHOLDER] Fórmula de distribución de carnada', tipo: 'Funcional', prioridadBase: 3 },
+      { codigo: 'RNF-01', descripcion: '[PLACEHOLDER] Control de acceso basado en roles', tipo: 'No Funcional', prioridadBase: 2 }
+    ];
+
+    function renderRequisitos() {
+      RequisitosEngine.sembrarSiVacio(SEMILLA_PLACEHOLDER);
+      document.getElementById('estadoSemilla').textContent =
+        RequisitosEngine.listarRequisitos().length > 0 ? `${RequisitosEngine.listarRequisitos().length} requisitos cargados` : 'Sin requisitos';
+      document.getElementById('estadoSemilla').className = 'badge ' + (RequisitosEngine.listarRequisitos().length ? 'badge-ok' : 'badge-warn');
+
+      const tbody = document.getElementById('tablaRequisitos');
+      tbody.innerHTML = '';
+      RequisitosEngine.listarRequisitos().forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'trazable-row';
+        tr.onclick = () => mostrarTrazabilidad(r.id);
+        tr.innerHTML = `<td>${r.codigo}</td><td>${r.descripcion}</td><td>${r.prioridadBase}</td>
+          <td><b>${r.prioridadCalculada}</b></td><td>${r.insightIds.length}</td>
+          <td>${r.decision ? r.decision.estado : '<span class="badge badge-warn">Sin decisión</span>'}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      const listaInsights = document.getElementById('listaInsights');
+      listaInsights.innerHTML = '';
+      RequisitosEngine.listarInsights().forEach(i => {
+        const d = document.createElement('div');
+        d.className = 'card-item';
+        d.innerHTML = `<div class="flex justify-between"><b>${i.fuente}</b><span class="text-xs">U:${i.urgencia} I:${i.impacto}</span></div>
+          <div class="text-xs">${i.texto}</div>
+          <select class="mt-2" onchange="vincular(${i.id}, this.value)">
+            <option value="">Vincular a requisito…</option>
+            ${RequisitosEngine.listarRequisitos().map(r => `<option value="${r.id}">${r.codigo}</option>`).join('')}
+          </select>`;
+        listaInsights.appendChild(d);
+      });
+    }
+
+    function agregarInsight() {
+      const fuente = document.getElementById('i_fuente').value;
+      const usuario = document.getElementById('i_usuario').value.trim();
+      const texto = document.getElementById('i_texto').value.trim();
+      const urgencia = parseInt(document.getElementById('i_urgencia').value, 10);
+      const impacto = parseInt(document.getElementById('i_impacto').value, 10);
+      if (!texto) return;
+      RequisitosEngine.crearInsight({ fuente, usuario, texto, urgencia, impacto });
+      document.getElementById('i_texto').value = '';
+      renderRequisitos();
+    }
+
+    function vincular(insightId, requisitoId) {
+      if (!requisitoId) return;
+      RequisitosEngine.vincularInsightRequisito(insightId, parseInt(requisitoId, 10));
+      renderRequisitos(); // la prioridadCalculada ya cambió — se ve al instante en la tabla
+    }
+
+    function mostrarTrazabilidad(requisitoId) {
+      const t = RequisitosEngine.obtenerTrazabilidad(requisitoId);
+      const el = document.getElementById('detalleRequisito');
+      el.classList.remove('hidden');
+      el.innerHTML = `
+        <b>${t.requisito.codigo}</b> — ${t.requisito.descripcion}<br>
+        <span class="text-xs" style="color:var(--muted)">Prioridad base ${t.requisito.prioridadBase} → calculada <b>${t.requisito.prioridadCalculada}</b></span>
+        <div class="mt-2 text-xs"><b>Insights vinculados:</b> ${t.insights.length ? t.insights.map(i => `"${i.texto}" (${i.fuente})`).join(' · ') : 'ninguno todavía'}</div>
+        <div class="mt-2 flex gap-2">
+          <select id="decisionEstado"><option>En análisis</option><option>Aceptado</option><option>Rechazado</option></select>
+          <input id="decisionJustificacion" placeholder="Justificación">
+          <button class="btn btn-primary" onclick="guardarDecision(${requisitoId})">Guardar decisión</button>
+        </div>`;
+    }
+
+    function guardarDecision(requisitoId) {
+      const estado = document.getElementById('decisionEstado').value;
+      const justificacion = document.getElementById('decisionJustificacion').value;
+      RequisitosEngine.registrarDecision(requisitoId, { estado, justificacion });
+      renderRequisitos();
+      mostrarTrazabilidad(requisitoId);
+    }
+
+    // Init
+    renderRequisitos();
+  </script>
+</body>
+</html>
