@@ -309,7 +309,6 @@
     <Content Include="Docs\Fase4_Matriz_Diagnostica.md" />
     <Content Include="Docs\Fase5_Experience_Stack.md" />
     <Content Include=".editorconfig" />
-    <Content Include="Docs\README_investigacion.md" />
     <Content Include="Docs\Fase3_Algoritmos_de_Atencion.md" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\dashboard-charts.js" />
@@ -322,7 +321,6 @@
     <Content Include="Scripts\interfaces\interfaz4-empathy-map.html" />
     <Content Include="Scripts\interfaces\Interfaz5-roper-dynagram.html" />
     <Content Include="Scripts\interfaces\Interfaz6-mapeo-requerimientos.html" />
-    <Content Include="Scripts\interfaces\InterfazesComb%285-6%29.html" />
     <Content Include="Scripts\interfaces\investigacion-motor-base.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />

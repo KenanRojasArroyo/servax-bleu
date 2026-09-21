@@ -85,5 +85,5 @@ Ver `ERD_ServaxBleu.drawio` (11 tablas, PK/FK y cardinalidades) y `schema_Servax
 Sin cambios respecto a la versión anterior — ver tabla de índices y lista de FKs ya entregada:
 
 - **Por corral / especie / tipo de alimento / rango de fecha**: filtros presentes en la mayoría de los `Index`.
-- **Índices**: `IX_MuestreoAgua_Corral_Fecha`, `IX_RegistroAlimentacion_Corral_Fecha`, `IX_HistorialCorral_Corral_Fecha` (en `schema_ServaxBleu.sql`).
+- **Índices**: `idx_MuestreoAgua_Corral_Fecha`, `idx_RegistroAlimentacion_Corral_Fecha`, `idx_HistorialCorral_Corral_Fecha` (en `schema_ServaxBleu.sql`).
 - **FKs**: las 10 relaciones documentadas en el ERD (todas hacia `Corral`, `Especie`, `Alimento` o `Barco`); `Calidad` es la única tabla sin FK (legacy, aislada).

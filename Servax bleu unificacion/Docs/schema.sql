@@ -257,7 +257,7 @@ CREATE TABLE HistorialCorral (
 GO
 
 -- Índices de apoyo 
-CREATE INDEX IX_RegistroAlimentacion_Corral_Fecha ON RegistroAlimentacion(IdCorral, Fecha);
+CREATE INDEX idx_RegistroAlimentacion_Corral_Fecha ON RegistroAlimentacion(IdCorral, Fecha);
 CREATE INDEX idx_LecturaSensor_Corral_Fecha ON LecturaSensorCorral(IdCorral, Fecha);
 GO
 

@@ -142,7 +142,7 @@ CREATE TABLE HistorialCorral (
 GO
 
 -- Índices de apoyo para el dashboard (consultas frecuentes por corral/fecha)
-CREATE INDEX IX_MuestreoAgua_Corral_Fecha ON MuestreoAgua(IdCorral, Fecha);
-CREATE INDEX IX_RegistroAlimentacion_Corral_Fecha ON RegistroAlimentacion(IdCorral, Fecha);
-CREATE INDEX IX_HistorialCorral_Corral_Fecha ON HistorialCorral(IdCorral, Fecha);
+CREATE INDEX idx_MuestreoAgua_Corral_Fecha ON MuestreoAgua(IdCorral, Fecha);
+CREATE INDEX idx_RegistroAlimentacion_Corral_Fecha ON RegistroAlimentacion(IdCorral, Fecha);
+CREATE INDEX idx_HistorialCorral_Corral_Fecha ON HistorialCorral(IdCorral, Fecha);
 GO
